@@ -5,7 +5,8 @@ email: dponyatov@gmail.com
 
 ТЗ: https://docs.google.com/document/d/1T_c6mOYva_e5VUGO0IC8_cRH8zb3ghMBMSwGsferhFg/edit
 
-GPS: 
+GPS:
+	uBlox neo 6 
 	http://www.kosmodrom.com.ua/pdf/TISTAR15.pdf
 	
 BT:
