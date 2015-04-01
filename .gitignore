@@ -1,3 +1,6 @@
 *~
 *.swp
+*.bak
+*.net
+*-cache.lib
 

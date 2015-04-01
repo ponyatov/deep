@@ -1,0 +1,282 @@
+EESchema Schematic File Version 2  date Срд 01 Апр 2015 14:37:43
+LIBS:R
+LIBS:L
+LIBS:C
+LIBS:POWER
+LIBS:DA_POWER
+LIBS:FET
+LIBS:SPICE
+LIBS:VD
+LIBS:SWITCH
+LIBS:deep-cache
+EELAYER 25  0
+EELAYER END
+$Descr A4 11700 8267
+encoding utf-8
+Sheet 1 7
+Title "deep: openhardware NMEA multiplexer"
+Date "1 apr 2015"
+Rev ""
+Comp "(c) DepthGuru, Samara, RU, OpenHardware license"
+Comment1 "(by) Dmitry Ponyatov <dponyatov@gmail.com>"
+Comment2 "главная схема"
+Comment3 ""
+Comment4 ""
+$EndDescr
+Text Label 1200 6600 0    60   ~ 0
+SD_SELECT
+Text Label 1200 6450 0    60   ~ 0
+SPI0_DO
+Text Label 1200 6300 0    60   ~ 0
+SPI0_DI
+Text Label 1200 6150 0    60   ~ 0
+SPI0_SCK
+Text Label 1200 7050 0    60   ~ 0
+GND
+Text Label 1200 6850 0    60   ~ 0
+VCC3
+$Sheet
+S 1800 6000 3150 1200
+U 551BB3B2
+F0 "Модуль SD карты" 60
+F1 "SD.sch" 60
+F2 "VCC3" I L 1800 6850 60 
+F3 "GND" I L 1800 7050 60 
+F4 "DO" O L 1800 6450 60 
+F5 "DI" I L 1800 6300 60 
+F6 "CS" I L 1800 6600 60 
+F7 "DAT2" I R 4950 6400 60 
+F8 "DAT1" I R 4950 6300 60 
+F9 "DAT0" I R 4950 6200 60 
+F10 "CLK" I L 1800 6150 60 
+F11 "CMD" I R 4950 6600 60 
+F12 "CD/DAT3" I R 4950 6500 60 
+$EndSheet
+Wire Wire Line
+	1800 6150 1100 6150
+Wire Wire Line
+	1800 6450 1100 6450
+Wire Wire Line
+	1800 6850 1100 6850
+Wire Wire Line
+	6600 6100 5900 6100
+Wire Wire Line
+	6600 5900 5900 5900
+Wire Wire Line
+	5900 6400 6600 6400
+Wire Wire Line
+	1100 3900 1800 3900
+Wire Bus Line
+	1000 7400 1000 2900
+Wire Wire Line
+	3950 2150 5700 2150
+Wire Bus Line
+	1000 2900 5700 2900
+Wire Wire Line
+	4950 3900 5700 3900
+Wire Wire Line
+	5900 7550 5900 7600
+Wire Wire Line
+	5900 1800 6650 1800
+Wire Wire Line
+	5900 4500 6650 4500
+Wire Wire Line
+	5900 2450 6650 2450
+Wire Bus Line
+	5800 700  5800 7450
+Wire Wire Line
+	5900 4750 6650 4750
+Wire Wire Line
+	5900 1550 6650 1550
+Wire Wire Line
+	5900 2150 6650 2150
+Wire Wire Line
+	4950 4100 5700 4100
+Wire Wire Line
+	3950 1950 5700 1950
+Wire Wire Line
+	4000 2350 5700 2350
+Wire Wire Line
+	1100 3700 1800 3700
+Wire Wire Line
+	1100 4100 1800 4100
+Wire Wire Line
+	5900 6300 6600 6300
+Wire Wire Line
+	6600 6000 5900 6000
+Wire Wire Line
+	1100 7050 1800 7050
+Wire Wire Line
+	1800 6600 1100 6600
+Wire Wire Line
+	1800 6300 1100 6300
+Entry Wire Line
+	1000 6950 1100 7050
+Entry Wire Line
+	1000 6750 1100 6850
+Entry Wire Line
+	1000 6500 1100 6600
+Entry Wire Line
+	1000 6350 1100 6450
+Entry Wire Line
+	1000 6200 1100 6300
+Entry Wire Line
+	1000 6050 1100 6150
+Text Label 6000 6100 0    60   ~ 0
+SPI1_DO
+Text Label 6000 6000 0    60   ~ 0
+SPI1_DI
+Text Label 6000 5900 0    60   ~ 0
+SPI1_SCK
+Text Label 6000 6300 0    60   ~ 0
+VCC5
+Text Label 6000 6400 0    60   ~ 0
+GND
+Entry Wire Line
+	5800 6300 5900 6400
+Entry Wire Line
+	5800 6200 5900 6300
+Entry Wire Line
+	5800 6000 5900 6100
+Entry Wire Line
+	5800 5900 5900 6000
+Entry Wire Line
+	5800 5800 5900 5900
+$Sheet
+S 6600 5800 2600 700 
+U 551BBF1C
+F0 "Интерфейс модуля TISTAR15 GPS" 60
+F1 "TISTAR15.sch" 60
+F2 "SCK" I L 6600 5900 60 
+F3 "DO" O L 6600 6100 60 
+F4 "DI" I L 6600 6000 60 
+F5 "GND" I L 6600 6400 60 
+F6 "VCC5" I L 6600 6300 60 
+$EndSheet
+Text Label 5450 3900 0    60   ~ 0
+TX1
+Text Label 5450 4100 0    60   ~ 0
+RX1
+Text Label 1200 4100 0    60   ~ 0
+GND
+Text Label 1200 3900 0    60   ~ 0
+VCC3
+Text Label 1200 3700 0    60   ~ 0
+VCC5
+Entry Wire Line
+	1000 4000 1100 4100
+Entry Wire Line
+	1000 3800 1100 3900
+Entry Wire Line
+	1000 3600 1100 3700
+Text Label 5400 2350 0    60   ~ 0
+GND
+Text Label 5400 2150 0    60   ~ 0
+VCC3
+Text Label 5400 1950 0    60   ~ 0
+VCC5
+Entry Wire Line
+	5700 1950 5800 2050
+Entry Wire Line
+	5700 2150 5800 2250
+Entry Wire Line
+	5700 2350 5800 2450
+Entry Bus Bus
+	5700 2900 5800 3000
+Entry Wire Line
+	5700 4100 5800 4200
+Entry Wire Line
+	5700 3900 5800 4000
+Text Label 5900 7550 0    60   ~ 0
+GND
+Entry Wire Line
+	5800 7450 5900 7550
+$Comp
+L 0 #GND01
+U 1 1 551BC39A
+P 5900 7650
+F 0 "#GND01" H 5900 7550 40  0001 C CNN
+F 1 "0" H 5900 7580 40  0000 C CNN
+	1    5900 7650
+	1    0    0    -1  
+$EndComp
+Text Label 6000 4750 0    60   ~ 0
+VCC5
+Text Label 6000 4500 0    60   ~ 0
+GND
+Text Label 6000 2450 0    60   ~ 0
+VCC5
+Text Label 6000 2150 0    60   ~ 0
+GND
+Text Label 6000 1800 0    60   ~ 0
+RX1
+Text Label 6000 1550 0    60   ~ 0
+TX1
+Entry Wire Line
+	5800 4400 5900 4500
+Entry Wire Line
+	5800 1700 5900 1800
+Entry Wire Line
+	5800 1450 5900 1550
+Entry Wire Line
+	5800 2050 5900 2150
+Entry Wire Line
+	5800 4650 5900 4750
+Entry Wire Line
+	5800 2350 5900 2450
+$Sheet
+S 6650 3500 2450 1400
+U 551BBEAB
+F0 "RS232 порт 2" 60
+F1 "RS232_5v.sch" 60
+F2 "RX_RS232" O R 9100 4200 60 
+F3 "TX_RS232" O R 9100 3900 60 
+F4 "GND_RS232" O R 9100 4500 60 
+F5 "RX_TTL" I L 6650 4200 60 
+F6 "TX_TTL" I L 6650 3900 60 
+F7 "GND_TTL" I L 6650 4500 60 
+F8 "VCC5" I L 6650 4750 60 
+$EndSheet
+$Sheet
+S 6650 1150 2450 1550
+U 551BB4F9
+F0 "RS232 порт 1" 60
+F1 "RS232_5v.sch" 60
+F2 "RX_RS232" O R 9100 1800 60 
+F3 "TX_RS232" O R 9100 1550 60 
+F4 "GND_RS232" O R 9100 2150 60 
+F5 "RX_TTL" I L 6650 1800 60 
+F6 "TX_TTL" I L 6650 1550 60 
+F7 "GND_TTL" I L 6650 2150 60 
+F8 "VCC5" I L 6650 2450 60 
+$EndSheet
+$Sheet
+S 1800 3350 3150 2100
+U 551BB242
+F0 "Процессорный модуль AVR8 (Mega32)" 60
+F1 "AVR8_Mega32.sch" 60
+F2 "PRG_GND" I L 1800 5300 60 
+F3 "PRG_VCC" I L 1800 5200 60 
+F4 "PRG_RST" I L 1800 5100 60 
+F5 "PRG_SCK" I L 1800 5000 60 
+F6 "PRG_MISO" I L 1800 4900 60 
+F7 "PRG_MOSI" I L 1800 4800 60 
+F8 "TX1" I R 4950 3900 60 
+F9 "RX1" I R 4950 4100 60 
+F10 "GND" I L 1800 4100 60 
+F11 "VCC3" I L 1800 3900 60 
+F12 "VCC5" I L 1800 3700 60 
+$EndSheet
+$Sheet
+S 1800 1500 2150 1050
+U 551BB009
+F0 "Вторичный источник питания 9..15В" 60
+F1 "power_9_15.sch" 60
+F2 "PW_3v" O R 3950 2150 60 
+F3 "PW_BYPASS" O R 3950 1700 60 
+F4 "PW_GND" O R 3950 2350 60 
+F5 "GND_IN" I L 1800 2250 60 
+F6 "PW_5v" O R 3950 1950 60 
+F7 "PW_IN" I L 1800 1750 60 
+$EndSheet
+$EndSCHEMATC
