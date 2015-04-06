@@ -49,7 +49,7 @@ void setup()
   // (10 on most Arduino boards, 53 on the Mega) must be left as an output
   // or the SD library functions will not work.
   pinMode(10, OUTPUT);     // change this to 53 on a mega
-
+  pinMode(53, OUTPUT);     // change this to 53 on a mega
 
   // we'll use the initialization code from the utility libraries
   // since we're just testing if the card is working!
