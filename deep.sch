@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Срд 01 Апр 2015 14:37:43
+EESchema Schematic File Version 2
 LIBS:R
 LIBS:L
 LIBS:C
@@ -8,10 +8,11 @@ LIBS:FET
 LIBS:SPICE
 LIBS:VD
 LIBS:SWITCH
+LIBS:MAXIM
 LIBS:deep-cache
-EELAYER 25  0
+EELAYER 25 0
 EELAYER END
-$Descr A4 11700 8267
+$Descr A4 11693 8268
 encoding utf-8
 Sheet 1 7
 Title "deep: openhardware NMEA multiplexer"
@@ -52,64 +53,6 @@ F10 "CLK" I L 1800 6150 60
 F11 "CMD" I R 4950 6600 60 
 F12 "CD/DAT3" I R 4950 6500 60 
 $EndSheet
-Wire Wire Line
-	1800 6150 1100 6150
-Wire Wire Line
-	1800 6450 1100 6450
-Wire Wire Line
-	1800 6850 1100 6850
-Wire Wire Line
-	6600 6100 5900 6100
-Wire Wire Line
-	6600 5900 5900 5900
-Wire Wire Line
-	5900 6400 6600 6400
-Wire Wire Line
-	1100 3900 1800 3900
-Wire Bus Line
-	1000 7400 1000 2900
-Wire Wire Line
-	3950 2150 5700 2150
-Wire Bus Line
-	1000 2900 5700 2900
-Wire Wire Line
-	4950 3900 5700 3900
-Wire Wire Line
-	5900 7550 5900 7600
-Wire Wire Line
-	5900 1800 6650 1800
-Wire Wire Line
-	5900 4500 6650 4500
-Wire Wire Line
-	5900 2450 6650 2450
-Wire Bus Line
-	5800 700  5800 7450
-Wire Wire Line
-	5900 4750 6650 4750
-Wire Wire Line
-	5900 1550 6650 1550
-Wire Wire Line
-	5900 2150 6650 2150
-Wire Wire Line
-	4950 4100 5700 4100
-Wire Wire Line
-	3950 1950 5700 1950
-Wire Wire Line
-	4000 2350 5700 2350
-Wire Wire Line
-	1100 3700 1800 3700
-Wire Wire Line
-	1100 4100 1800 4100
-Wire Wire Line
-	5900 6300 6600 6300
-Wire Wire Line
-	6600 6000 5900 6000
-Wire Wire Line
-	1100 7050 1800 7050
-Wire Wire Line
-	1800 6600 1100 6600
-Wire Wire Line
-	1800 6300 1100 6300
 Entry Wire Line
 	1000 6950 1100 7050
 Entry Wire Line
@@ -192,11 +135,13 @@ GND
 Entry Wire Line
 	5800 7450 5900 7550
 $Comp
-L 0 #GND01
+L 0 #GND1
 U 1 1 551BC39A
 P 5900 7650
-F 0 "#GND01" H 5900 7550 40  0001 C CNN
+F 0 "#GND1" H 5900 7550 40  0001 C CNN
 F 1 "0" H 5900 7580 40  0000 C CNN
+F 2 "" H 5900 7650 60  0001 C CNN
+F 3 "" H 5900 7650 60  0001 C CNN
 	1    5900 7650
 	1    0    0    -1  
 $EndComp
@@ -279,4 +224,62 @@ F5 "GND_IN" I L 1800 2250 60
 F6 "PW_5v" O R 3950 1950 60 
 F7 "PW_IN" I L 1800 1750 60 
 $EndSheet
+Wire Wire Line
+	1800 6150 1100 6150
+Wire Wire Line
+	1800 6450 1100 6450
+Wire Wire Line
+	1800 6850 1100 6850
+Wire Wire Line
+	6600 6100 5900 6100
+Wire Wire Line
+	6600 5900 5900 5900
+Wire Wire Line
+	5900 6400 6600 6400
+Wire Wire Line
+	1100 3900 1800 3900
+Wire Bus Line
+	1000 7400 1000 2900
+Wire Wire Line
+	3950 2150 5700 2150
+Wire Bus Line
+	1000 2900 5700 2900
+Wire Wire Line
+	4950 3900 5700 3900
+Wire Wire Line
+	5900 7550 5900 7600
+Wire Wire Line
+	5900 1800 6650 1800
+Wire Wire Line
+	5900 4500 6650 4500
+Wire Wire Line
+	5900 2450 6650 2450
+Wire Bus Line
+	5800 700  5800 7450
+Wire Wire Line
+	5900 4750 6650 4750
+Wire Wire Line
+	5900 1550 6650 1550
+Wire Wire Line
+	5900 2150 6650 2150
+Wire Wire Line
+	4950 4100 5700 4100
+Wire Wire Line
+	3950 1950 5700 1950
+Wire Wire Line
+	4000 2350 5700 2350
+Wire Wire Line
+	1100 3700 1800 3700
+Wire Wire Line
+	1100 4100 1800 4100
+Wire Wire Line
+	5900 6300 6600 6300
+Wire Wire Line
+	6600 6000 5900 6000
+Wire Wire Line
+	1100 7050 1800 7050
+Wire Wire Line
+	1800 6600 1100 6600
+Wire Wire Line
+	1800 6300 1100 6300
 $EndSCHEMATC

@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Срд 01 Апр 2015 14:37:43
+EESchema Schematic File Version 2
 LIBS:R
 LIBS:L
 LIBS:C
@@ -8,10 +8,11 @@ LIBS:FET
 LIBS:SPICE
 LIBS:VD
 LIBS:SWITCH
+LIBS:MAXIM
 LIBS:deep-cache
-EELAYER 25  0
+EELAYER 25 0
 EELAYER END
-$Descr A4 11700 8267
+$Descr A4 11693 8268
 encoding utf-8
 Sheet 2 7
 Title "Модуль SD карты"

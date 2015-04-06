@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Срд 01 Апр 2015 14:37:43
+EESchema Schematic File Version 2
 LIBS:R
 LIBS:L
 LIBS:C
@@ -8,10 +8,11 @@ LIBS:FET
 LIBS:SPICE
 LIBS:VD
 LIBS:SWITCH
+LIBS:MAXIM
 LIBS:deep-cache
-EELAYER 25  0
+EELAYER 25 0
 EELAYER END
-$Descr A4 11700 8267
+$Descr A4 11693 8268
 encoding utf-8
 Sheet 7 7
 Title "Вторичный источник питания 9..15В"
@@ -34,20 +35,24 @@ Wire Wire Line
 Wire Wire Line
 	2400 2200 2400 2450
 $Comp
-L 0 #GND02
+L 0 #GND15
 U 1 1 551BC10C
 P 3600 2500
-F 0 "#GND02" H 3600 2400 40  0001 C CNN
+F 0 "#GND15" H 3600 2400 40  0001 C CNN
 F 1 "0" H 3600 2430 40  0000 C CNN
+F 2 "" H 3600 2500 60  0001 C CNN
+F 3 "" H 3600 2500 60  0001 C CNN
 	1    3600 2500
 	1    0    0    -1  
 $EndComp
 $Comp
-L 0 #GND03
+L 0 #GND14
 U 1 1 551BC107
 P 2400 2500
-F 0 "#GND03" H 2400 2400 40  0001 C CNN
+F 0 "#GND14" H 2400 2400 40  0001 C CNN
 F 1 "0" H 2400 2430 40  0000 C CNN
+F 2 "" H 2400 2500 60  0001 C CNN
+F 3 "" H 2400 2500 60  0001 C CNN
 	1    2400 2500
 	1    0    0    -1  
 $EndComp

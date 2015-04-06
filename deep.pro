@@ -1,6 +1,6 @@
-update=Срд 01 Апр 2015 12:34:37
+update=06.04.2015 16:25:42
 version=1
-last_client=eeschema
+last_client=kicad
 [cvpcb]
 version=1
 NetIExt=net
@@ -40,35 +40,7 @@ LibName11=valves
 version=1
 [eeschema]
 version=1
-LibDir=/home/ponyatov/Azbuka/kicad/lib
-NetFmt=1
-HPGLSpd=20
-HPGLDm=15
-HPGLNum=1
-offX_A4=0
-offY_A4=0
-offX_A3=0
-offY_A3=0
-offX_A2=0
-offY_A2=0
-offX_A1=0
-offY_A1=0
-offX_A0=0
-offY_A0=0
-offX_A=0
-offY_A=0
-offX_B=0
-offY_B=0
-offX_C=0
-offY_C=0
-offX_D=0
-offY_D=0
-offX_E=0
-offY_E=0
-RptD_X=0
-RptD_Y=100
-RptLab=1
-LabSize=60
+LibDir=../Azbuka/kicad/lib
 [eeschema/libraries]
 LibName1=R
 LibName2=L
@@ -79,4 +51,5 @@ LibName6=FET
 LibName7=SPICE
 LibName8=VD
 LibName9=SWITCH
+LibName10=MAXIM
 
