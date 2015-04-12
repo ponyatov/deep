@@ -14,8 +14,8 @@ void SPI_preinit() {
   pinMode(MOSI, OUTPUT);
   pinMode(MISO,  INPUT);
   pinMode(SCK, OUTPUT);
-  // trigger pulse
-  digitalWrite(SS,LOW);
+//  // trigger pulse
+//  digitalWrite(SS,LOW);
 }
 
 void SPI_postinit() {  
@@ -58,30 +58,52 @@ void SD_init() {
   // do SPI mode setup @ http://elm-chan.org/docs/mmc/gx1/sdinit.png
   Serial.print("\nSD init:");
   // wail >1ms on power on
-  delay(1);
+  delay(2);
   // dummy clock CS=DI=high
   digitalWrite(SS,HIGH); digitalWrite(MOSI,HIGH);
-  for (uint8_t i=0;i<77;i++) { digitalWrite(SCK,LOW); digitalWrite(SCK,HIGH); }
+  for (uint8_t i=0;i<0xFF;i++) { digitalWrite(SCK,LOW); digitalWrite(SCK,HIGH); }
   // SPI enable
   SPI_postinit(); SD_start();
   // cmd0
-  Serial.print(" CMD0:");
+  while (SPI.transfer(0x00)==0xFF) {
+      delay(1);
+  char c0[]={0,0,0,0};
+  SPI.transfer(c0,sizeof(c0));
+  }
+  /*
+  char c0[]={0,0,0,0};
+  SPI.transfer(c0,sizeof(c0));
+  SPI.transfer(c0,sizeof(c0));
+  SPI.transfer(c0,sizeof(c0));
+  SPI.transfer(c0,sizeof(c0));
+  */
+  /*
   SD_R1.byte=SPI.transfer(SD_CMD0);
   uint8_t cmd0t1=SD_R1.byte;
-  Serial.print(SD_R1.byte);
-  Serial.print(" CMD0:");
   SD_R1.byte=SPI.transfer(SD_CMD0);
   uint8_t cmd0t2=SD_R1.byte;
-  Serial.print(SD_R1.byte);
+  SD_R1.byte=SPI.transfer(SD_CMD0);
+  uint8_t cmd0t3=SD_R1.byte;
+  SD_R1.byte=SPI.transfer(SD_CMD0);
+  uint8_t cmd0t4=SD_R1.byte;
+  Serial.print(" CMD0:");
+  Serial.print(cmd0t1);
+  Serial.print(cmd0t2);
+  Serial.print(cmd0t3);
+  Serial.print(cmd0t4);
+  */
+  SD_error();
+  /*
   if (cmd0t1==0xFF & cmd0t2==0xFF) { 
     Serial.print(" \bError: no card");
     SD_error();
   }
+  */
   Serial.println("\n");
 }
 
 void SD_start() {
-  digitalWrite(SS,HIGH);
+  digitalWrite(SS, LOW);
 }
 
 void SD_stop() {
