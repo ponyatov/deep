@@ -1,7 +1,7 @@
-exec: crcgen.exe
-	crcgen.exe
+exec: gen.exe
+	gen.exe
 	pause
 
-crcgen.exe: crcgen.c
+gen.exe: gen.c
 	gcc -std=c99 -o $@ $<
 
