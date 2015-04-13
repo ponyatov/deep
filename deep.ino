@@ -23,7 +23,7 @@ void SPI_postinit(void) {
 }
 
 // SD cmd set from @ http://alumni.cs.ucr.edu/~amitra/sdcard/Additional/sdcard_appnote_foust.pdf
-struct T_SD_CMD {
+struct S_SD_CMD {
   uint8_t cmd;  // command # with msb bit padding 01 = 0x40
   uint8_t arg3;   // argument bytes
   uint8_t arg2;   // argument bytes
@@ -31,6 +31,20 @@ struct T_SD_CMD {
   uint8_t arg0;   // argument bytes
   uint8_t crc7;    // crc with lsb end bit set
 } __attribute__ ((__packed__));
+
+// SD R1 command answer
+struct S_SD_R1 {
+  uint8_t pad:1, // 0 pad bit
+  ParameterError:1,
+  AddressError:1,
+  EraseSeqError:1,
+  CommandCRCError:1,
+  IllegalCommand:1,
+  EraseReset:1,
+  InIdleState:1;
+}  __attribute__ ((__packed__));
+
+union U_SD_R1 { S_SD_R1 r; uint8_t b; };
 
 uint8_t crc7_table[] = {
 0x00,0x09,0x12,0x1B,0x24,0x2D,0x36,0x3F,0x48,0x41,0x5A,0x53,0x6C,0x65,0x7E,0x77,
@@ -67,10 +81,22 @@ uint8_t crc7(uint8_t *buf, size_t len) {
 }
 
 
-T_SD_CMD SD_CMD0[]={0x40|0,0,0,0,0,0x4A<<1|1};
+S_SD_CMD SD_CMD0[]={0x40|0,0,0,0,0,0x4A<<1|1};
 #define SD_CMD_GO_IDLE_STATE SD_CMD0
 
+/*
+  bool f_cmd0=false;
+  for (int ncr=0;ncr<=8;ncr++) {
+    r.b=SPI.transfer(0xFF);
+    if (r.b != 0xFF) {
+      return true; 
+    }
+  }
+  return false;
+*/
+
 void SD_init(void) {
+  U_SD_R1 R1;
   // init procedure @ http://elm-chan.org/docs/mmc/gx1/sdinit.png
   SPI_preinit();
   // wait on power on
@@ -82,7 +108,6 @@ void SD_init(void) {
   SPI_postinit(); SD_on();
   // CMD0
   SPI.transfer(SD_CMD0,sizeof(SD_CMD0));
-//  for (int j=0;j<9;j++) SPI.transfer(0xFF);
 }
 
 void SD_on(void) { digitalWrite(SS, LOW); /* SS# */ }
