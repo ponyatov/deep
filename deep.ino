@@ -1,133 +1,63 @@
 
 #include <SPI.h>
 
-/*
-// Mega1280/2560
-static const uint8_t SS   = 53;
-static const uint8_t MOSI = 51;
-static const uint8_t MISO = 50;
-static const uint8_t SCK  = 52;
-*/
-
-void SPI_preinit() {
-  pinMode(SS, OUTPUT); // SS#
-  pinMode(MOSI, OUTPUT);
-  pinMode(MISO,  INPUT);
+void SPI_preinit(void) {
+  /* mega 1280/2560 @ variants/mega/pins_arduino.h
+  static const uint8_t SS   = 53;
+  static const uint8_t SCK  = 52;
+  static const uint8_t MOSI = 51;
+  static const uint8_t MISO = 50;
+  */
+  pinMode(SS,  OUTPUT);
   pinMode(SCK, OUTPUT);
-//  // trigger pulse
-//  digitalWrite(SS,LOW);
+  pinMode(MOSI,OUTPUT);
+  pinMode(MISO, INPUT);
 }
 
-void SPI_postinit() {  
+void SPI_postinit(void) {
   SPI.begin();
-  SPI.setDataMode(SPI_MODE0); // required for SD/MMC
   SPI.setClockDivider(SPI_CLOCK_DIV128);
+  // required for SD/MMC
+  SPI.setDataMode(SPI_MODE0);
+  SPI.setBitOrder(MSBFIRST);
 }
 
-#define SD_CMD0 0x00
-#define SD_GO_IDLE_STATE SD_CMD0
-// arg:no resp:R1 data: no
-
-struct T_SD_R1 {
-  uint8_t pad0:1; // always 0
-  uint8_t ParameterErr:1;
-  uint8_t AddressErr:1;
-  uint8_t EraseSeqErr:1;
-  uint8_t CommandCRCErr:1;
-  uint8_t IllegalCommand:1;
-  uint8_t EraseReset:1;
-  uint8_t InIdleState:1;
+// SD cmd set from @ http://alumni.cs.ucr.edu/~amitra/sdcard/Additional/sdcard_appnote_foust.pdf
+struct T_SD_CMD {
+  uint8_t cmd;  // command # with msb bit padding 01 = 0x40
+  uint8_t arg3;   // argument bytes
+  uint8_t arg2;   // argument bytes
+  uint8_t arg1;   // argument bytes
+  uint8_t arg0;   // argument bytes
+  uint8_t crc7;    // crc with lsb end bit set
 } __attribute__ ((__packed__));
 
-union { uint8_t byte; T_SD_R1 bit; } SD_R1;
+T_SD_CMD SD_CMD0[]={0x40|0,1,2,3,4,1|0b1010010};
+#define SD_CMD_GO_IDLE_STATE SD_CMD0
 
-struct SD_R2 {
-  
-};
-
-struct SD_R3 {
-  T_SD_R1 R1;
-} __attribute__ ((__packed__)) SD_R3;
-
-struct SD_R7 {
-  
-};
-
-void SD_init() {
+void SD_init(void) {
+  // init procedure @ http://elm-chan.org/docs/mmc/gx1/sdinit.png
   SPI_preinit();
-  // do SPI mode setup @ http://elm-chan.org/docs/mmc/gx1/sdinit.png
-  Serial.print("\nSD init:");
-  // wail >1ms on power on
-  delay(2);
+  // wait on power on
+  delay(1);
   // dummy clock CS=DI=high
   digitalWrite(SS,HIGH); digitalWrite(MOSI,HIGH);
-  for (uint8_t i=0;i<0xFF;i++) { digitalWrite(SCK,LOW); digitalWrite(SCK,HIGH); }
-  // SPI enable
-  SPI_postinit(); SD_start();
-  // cmd0
-  while (SPI.transfer(0x00)==0xFF) {
-      delay(1);
-  char c0[]={0,0,0,0};
-  SPI.transfer(c0,sizeof(c0));
-  }
-  /*
-  char c0[]={0,0,0,0};
-  SPI.transfer(c0,sizeof(c0));
-  SPI.transfer(c0,sizeof(c0));
-  SPI.transfer(c0,sizeof(c0));
-  SPI.transfer(c0,sizeof(c0));
-  */
-  /*
-  SD_R1.byte=SPI.transfer(SD_CMD0);
-  uint8_t cmd0t1=SD_R1.byte;
-  SD_R1.byte=SPI.transfer(SD_CMD0);
-  uint8_t cmd0t2=SD_R1.byte;
-  SD_R1.byte=SPI.transfer(SD_CMD0);
-  uint8_t cmd0t3=SD_R1.byte;
-  SD_R1.byte=SPI.transfer(SD_CMD0);
-  uint8_t cmd0t4=SD_R1.byte;
-  Serial.print(" CMD0:");
-  Serial.print(cmd0t1);
-  Serial.print(cmd0t2);
-  Serial.print(cmd0t3);
-  Serial.print(cmd0t4);
-  */
-  SD_error();
-  /*
-  if (cmd0t1==0xFF & cmd0t2==0xFF) { 
-    Serial.print(" \bError: no card");
-    SD_error();
-  }
-  */
-  Serial.println("\n");
+  for (int i=0;i<77;i++) { digitalWrite(SCK,LOW); digitalWrite(SCK,HIGH); }
+  // SPI hw enable
+  SPI_postinit(); SD_on();
+  // CMD0
+  SPI.transfer(SD_CMD0,sizeof(SD_CMD0));
+  for (int j=0;j<9;j++) SPI.transfer(0xFF);
 }
 
-void SD_start() {
-  digitalWrite(SS, LOW);
-}
+void SD_on(void) { digitalWrite(SS, LOW); /* SS# */ }
 
-void SD_stop() {
-  digitalWrite(SS, LOW);
-}
-
-void SD_error() {
-  SD_stop();
-  SPI.end();
-  SD_stop();
-}
-
-void setup() {
+void setup(void) {
   Serial.begin(115200);
+  Serial.println(sizeof(SD_CMD0));
   SD_init();
 }
 
-void loop() {
-  for (;;) delay(111);
-/*
-  SD_start();
-  SPI.transfer(0x00);
-  SD_stop();
-  SPI.transfer(0xFF);
-*/
+void loop(void) {
 }
 
