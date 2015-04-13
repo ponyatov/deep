@@ -67,9 +67,10 @@ int main() {
 	}
 	printf("\n");
 	*/
+	// SD SPI commands
 	uint8_t cmd0[]={0x40|0,0,0,0,0};
 	uint8_t cmd0_crc=crc7(cmd0,sizeof(cmd0));
-	printf("\n[%.2X] %.2X\n",cmd0_crc,cmd0_crc<<1|1);
+	printf("\ncrc7:%.2X sdcmdcrc:%.2X\n",cmd0_crc,cmd0_crc<<1|1);
 	return 0;
 }
 
