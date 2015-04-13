@@ -97,7 +97,9 @@ S_SD_CMD SD_CMD0[]={0x40|0,0,0,0,0,0x4A<<1|1};
 
 void SD_init(void) {
   U_SD_R1 R1;
+  uint8_t ncr;
   // init procedure @ http://elm-chan.org/docs/mmc/gx1/sdinit.png
+  Serial.println("SD init:");
   SPI_preinit();
   // wait on power on
   delay(1);
@@ -108,13 +110,16 @@ void SD_init(void) {
   SPI_postinit(); SD_on();
   // CMD0
   SPI.transfer(SD_CMD0,sizeof(SD_CMD0));
+  for (ncr=0;ncr<=8;ncr++) { R1.b=SPI.transfer(0xFF); if (R1.b != 0xFF) break; }
+  if (R1.b!=0x01) { Serial.println("CMD0 error\n"); } else {
+    Serial.println("CMD0 ok\n");
+  }
 }
 
 void SD_on(void) { digitalWrite(SS, LOW); /* SS# */ }
 
 void setup(void) {
   Serial.begin(115200);
-  Serial.println(sizeof(SD_CMD0));
   SD_init();
 }
 
