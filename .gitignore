@@ -3,4 +3,5 @@
 *.bak
 *.net
 *-cache.lib
+crc/*.exe
 
