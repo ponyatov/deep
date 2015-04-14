@@ -77,15 +77,13 @@ void SD_init(void) {
     // CMD8
     SPI.transfer(SD_CMD8,sizeof(SD_CMD8));
     for (ncr=0;ncr<=8;ncr++) { R1.b=SPI.transfer(0xFF); if (R1.b != 0xFF) break; }
+    uint32_t r7=0; for(uint8_t i=0;i<sizeof(r7);i++) r7=(r7<<8)|SPI.transfer(0xFF);
+    SPI.transfer(0xFF); SPI.transfer(0xFF); SPI.transfer(0xFF);
     Serial.print("CMD8(0x1AA) R1:"); Serial.print(R1.b);
     if (R1.b!=SD_R1_IDLE) { Serial.println("CMD8/R1 error"); } else {
-      uint32_t r7=0; for(uint8_t i=0;i<4;i++) r7=(r7<<8)|SPI.transfer(0xFF);
       Serial.print(" R7:");  Serial.print(r7); Serial.print(" ");
       if (r7!=0x1AA) { Serial.println("CMD8/0x1AA error"); } else {
         Serial.println("Ok");
-        SPI.transfer(0xFF);
-        SPI.transfer(0xFF);
-        SPI.transfer(0xFF);
       }
     } // CMD8 R1 part ok
   } // CMD0 ok
