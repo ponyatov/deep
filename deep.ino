@@ -10,7 +10,7 @@ void SPI_preinit(void) {
   */
   pinMode(SS,  OUTPUT);
   pinMode(SCK, OUTPUT);
-  pinMode(MOSI,OUTPUT);
+  pinMode(MOSI,OUTPUT);             
   pinMode(MISO, INPUT);
 }
 
@@ -55,6 +55,13 @@ S_SD_CMD SD_CMD0[]={0x40|0,0,0,0,0,0x4A<<1|1};
 S_SD_CMD SD_CMD8[]={0x40|8,0,0,0x01,0xAA,0x43<<1|1};
 #define SD_CMD_SEND_IF_COND SD_CMD8
 
+S_SD_CMD SD_ACMD41_40[]={0x40|41,0x40,0x00,0x00,0x00,0x35<<1|1};
+#define SD_CMD_APP_SEND_OP_COND SD_ACMD41_40
+
+S_SD_CMD SD_ACMD41_00[]={0x40|41,0x00,0x00,0x00,0x00,0x72<<1|1};
+#define SD_CMD_APP_SEND_OP_COND SD_ACMD41_00
+
+
 void SD_init(void) {
   U_SD_R1 R1;
 //  U_SD_R7 R7;
@@ -72,18 +79,29 @@ void SD_init(void) {
   // CMD0
   SPI.transfer(SD_CMD0,sizeof(SD_CMD0));
   for (ncr=0;ncr<=8;ncr++) { R1.b=SPI.transfer(0xFF); if (R1.b != 0xFF) break; }
+  SPI.transfer(0xFF); SPI.transfer(0xFF); 
   if (R1.b!=SD_R1_IDLE) { Serial.println("CMD0 error"); } else {
     Serial.println("CMD0 ok");
     // CMD8
     SPI.transfer(SD_CMD8,sizeof(SD_CMD8));
     for (ncr=0;ncr<=8;ncr++) { R1.b=SPI.transfer(0xFF); if (R1.b != 0xFF) break; }
     uint32_t r7=0; for(uint8_t i=0;i<sizeof(r7);i++) r7=(r7<<8)|SPI.transfer(0xFF);
-    SPI.transfer(0xFF); SPI.transfer(0xFF); SPI.transfer(0xFF);
+    SPI.transfer(0xFF); SPI.transfer(0xFF); 
     Serial.print("CMD8(0x1AA) R1:"); Serial.print(R1.b);
     if (R1.b!=SD_R1_IDLE) { Serial.println("CMD8/R1 error"); } else {
-      Serial.print(" R7:");  Serial.print(r7); Serial.print(" ");
-      if (r7!=0x1AA) { Serial.println("CMD8/0x1AA error"); } else {
-        Serial.println("Ok");
+      Serial.print(" R7:");  Serial.print(r7,HEX); Serial.print(" ");
+      if (r7!=0x1AA) { Serial.println("CMD8/0x1AA error: only SDv2 supported"); } else {
+        Serial.println("Ok, SDv2 detected");
+        // ACMD41_40
+        Serial.print("ACMD41(0x40000000):");
+        SPI.transfer(SD_ACMD41_40,sizeof(SD_ACMD41_40));
+        for (ncr=0;ncr<=8;ncr++) { R1.b=SPI.transfer(0xFF); if (R1.b != 0xFF) break; }
+        SPI.transfer(0xFF); SPI.transfer(0xFF); 
+        // ACMD41_00
+        Serial.print("ACMD41(0x00000000):");
+        SPI.transfer(SD_ACMD41_00,sizeof(SD_ACMD41_00));
+        for (ncr=0;ncr<=8;ncr++) { R1.b=SPI.transfer(0xFF); if (R1.b != 0xFF) break; }
+        SPI.transfer(0xFF); SPI.transfer(0xFF); 
       }
     } // CMD8 R1 part ok
   } // CMD0 ok
