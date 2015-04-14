@@ -44,13 +44,20 @@ struct S_SD_R1 {
   InIdleState:1;
 }  __attribute__ ((__packed__));
 
+#define SD_R1_IDLE 0x01
+
 union U_SD_R1 { S_SD_R1 r; uint8_t b; };
+//union U_SD_R7 { S_SD_R7 r; uint8_t b[4]; };
 
 S_SD_CMD SD_CMD0[]={0x40|0,0,0,0,0,0x4A<<1|1};
 #define SD_CMD_GO_IDLE_STATE SD_CMD0
 
+S_SD_CMD SD_CMD8[]={0x40|8,0,0,0x01,0xAA,0x43<<1|1};
+#define SD_CMD_SEND_IF_COND SD_CMD8
+
 void SD_init(void) {
   U_SD_R1 R1;
+//  U_SD_R7 R7;
   uint8_t ncr;
   // init procedure @ http://elm-chan.org/docs/mmc/gx1/sdinit.png
   Serial.println("SD init:");
@@ -59,15 +66,29 @@ void SD_init(void) {
   delay(1);
   // dummy clock CS=DI=high
   digitalWrite(SS,HIGH); digitalWrite(MOSI,HIGH);
-  for (int i=0;i<77;i++) { digitalWrite(SCK,LOW); digitalWrite(SCK,HIGH); }
+  for (uint8_t i=0;i<77;i++) { digitalWrite(SCK,LOW); digitalWrite(SCK,HIGH); }
   // SPI hw enable
   SPI_postinit(); SD_on();
   // CMD0
   SPI.transfer(SD_CMD0,sizeof(SD_CMD0));
   for (ncr=0;ncr<=8;ncr++) { R1.b=SPI.transfer(0xFF); if (R1.b != 0xFF) break; }
-  if (R1.b!=0x01) { Serial.println("CMD0 error\n"); } else {
-    Serial.println("CMD0 ok\n");
-  }
+  if (R1.b!=SD_R1_IDLE) { Serial.println("CMD0 error"); } else {
+    Serial.println("CMD0 ok");
+    // CMD8
+    SPI.transfer(SD_CMD8,sizeof(SD_CMD8));
+    for (ncr=0;ncr<=8;ncr++) { R1.b=SPI.transfer(0xFF); if (R1.b != 0xFF) break; }
+    Serial.print("CMD8(0x1AA) R1:"); Serial.print(R1.b);
+    if (R1.b!=SD_R1_IDLE) { Serial.println("CMD8/R1 error"); } else {
+      uint32_t r7=0; for(uint8_t i=0;i<4;i++) r7=(r7<<8)|SPI.transfer(0xFF);
+      Serial.print(" R7:");  Serial.print(r7); Serial.print(" ");
+      if (r7!=0x1AA) { Serial.println("CMD8/0x1AA error"); } else {
+        Serial.println("Ok");
+        SPI.transfer(0xFF);
+        SPI.transfer(0xFF);
+        SPI.transfer(0xFF);
+      }
+    } // CMD8 R1 part ok
+  } // CMD0 ok
 }
 
 void SD_on(void) { digitalWrite(SS, LOW); /* SS# */ }
