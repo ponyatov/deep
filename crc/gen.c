@@ -68,24 +68,10 @@ int main() {
 	printf("\n");
 	*/
 	// SD SPI commands
-	// cmd0
-	uint8_t cmd0[]={0x40|0,0,0,0,0};
-	uint8_t cmd0_crc=crc7(cmd0,sizeof(cmd0));
-	printf("cmd0= crc7:%.2X sdcmdcrc:%.2X\n",cmd0_crc,cmd0_crc<<1|1);
-	// cmd8
-	uint8_t cmd8[]={0x40|8,0,0,0x01,0xAA};
-	uint8_t cmd8_crc=crc7(cmd8,sizeof(cmd8));
-	printf("cmd8(0x1AA)= crc7:%.2X sdcmdcrc:%.2X\n",cmd8_crc,cmd8_crc<<1|1);
-	// acmd41
-	uint8_t acmd41_40[]={0x40|41,0x40,0x00,0x00,0x00};
-	uint8_t acmd41_40_crc=crc7(acmd41_40,sizeof(acmd41_40));
-	printf("cmd41_40(0x40000000)= crc7:%.2X sdcmdcrc:%.2X\n",acmd41_40_crc,acmd41_40_crc<<1|1);
-	// acmd41
-	uint8_t acmd41_00[]={0x40|41,0x00,0x00,0x00,0x00};
-	uint8_t acmd41_00_crc=crc7(acmd41_00,sizeof(acmd41_00));
-	printf("cmd41_00(0x00000000)= crc7:%.2X sdcmdcrc:%.2X\n",acmd41_00_crc,acmd41_00_crc<<1|1);
-	//
-	printf("\n\n");
+	// cmdX
+	uint8_t cmdX[]={0x40|58,0x00,0x00,0x00,0x00};
+	uint8_t cmdX_crc7=crc7(cmdX,sizeof(cmdX));
+	printf("\ncmdX crc7:%.2X crc7<<1|1:%.2X\n\n",cmdX_crc7,cmdX_crc7<<1|1);
 	return 0;
 }
 

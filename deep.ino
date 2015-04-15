@@ -10,7 +10,7 @@ void SPI_preinit(void) {
   */
   pinMode(SS,  OUTPUT);
   pinMode(SCK, OUTPUT);
-  pinMode(MOSI,OUTPUT);             
+  pinMode(MOSI,OUTPUT);
   pinMode(MISO, INPUT);
 }
 
@@ -22,92 +22,84 @@ void SPI_postinit(void) {
   SPI.setBitOrder(MSBFIRST);
 }
 
-// SD cmd set from @ http://alumni.cs.ucr.edu/~amitra/sdcard/Additional/sdcard_appnote_foust.pdf
-struct S_SD_CMD {
-  uint8_t cmd;  // command # with msb bit padding 01 = 0x40
-  uint8_t arg3;   // argument bytes
-  uint8_t arg2;   // argument bytes
-  uint8_t arg1;   // argument bytes
-  uint8_t arg0;   // argument bytes
-  uint8_t crc7;    // crc with lsb end bit set
-} __attribute__ ((__packed__));
+// SD commands set
 
-// SD R1 command answer
-struct S_SD_R1 {
-  uint8_t pad:1, // 0 pad bit
-  ParameterError:1,
-  AddressError:1,
-  EraseSeqError:1,
-  CommandCRCError:1,
-  IllegalCommand:1,
-  EraseReset:1,
-  InIdleState:1;
-}  __attribute__ ((__packed__));
-
-#define SD_R1_IDLE 0x01
-
-union U_SD_R1 { S_SD_R1 r; uint8_t b; };
-//union U_SD_R7 { S_SD_R7 r; uint8_t b[4]; };
-
-S_SD_CMD SD_CMD0[]={0x40|0,0,0,0,0,0x4A<<1|1};
+uint8_t SD_CMD0[] = {0xFF,0x40|0,0x00,0x00,0x00,0x00,0x4A<<1|1};
 #define SD_CMD_GO_IDLE_STATE SD_CMD0
 
-S_SD_CMD SD_CMD8[]={0x40|8,0,0,0x01,0xAA,0x43<<1|1};
+uint8_t SD_CMD8[] = {0xFF,0x40|8,0x00,0x00,0x01,0xAA,0x43<<1|1};
 #define SD_CMD_SEND_IF_COND SD_CMD8
 
-S_SD_CMD SD_ACMD41_40[]={0x40|41,0x40,0x00,0x00,0x00,0x35<<1|1};
-#define SD_CMD_APP_SEND_OP_COND SD_ACMD41_40
+uint8_t SD_CMD58[] = {0xFF,0x40|58,0x00,0x00,0x00,0x00,0x7E<<1|1};
+#define SD_CMD_READ_OCR SD_CMD58
 
-S_SD_CMD SD_ACMD41_00[]={0x40|41,0x00,0x00,0x00,0x00,0x72<<1|1};
-#define SD_CMD_APP_SEND_OP_COND SD_ACMD41_00
+uint8_t SD_CMD55[] = {0xFF,0x40|55,0x00,0x00,0x00,0x00,0x32<<1|1};
+#define SD_ACMD_PFX SD_CMD55
+uint8_t SD_ACMD41_00[] = {0xFF,0x40|41,0x00,0x00,0x00,0x00,0x72<<1|1};
+uint8_t SD_ACMD41_40[] = {0xFF,0x40|41,0x40,0x00,0x00,0x00,0x3B<<1|1};
 
+void SD_on(void)  { digitalWrite(SS, LOW); /* SS# */ }
+void SD_off(void) { digitalWrite(SS,HIGH); /* SS# */ }
 
-void SD_init(void) {
-  U_SD_R1 R1;
-//  U_SD_R7 R7;
+uint8_t SD_CMD_R1(uint8_t *cmd, uint8_t sz) {
   uint8_t ncr;
-  // init procedure @ http://elm-chan.org/docs/mmc/gx1/sdinit.png
-  Serial.println("SD init:");
-  SPI_preinit();
-  // wait on power on
-  delay(1);
-  // dummy clock CS=DI=high
-  digitalWrite(SS,HIGH); digitalWrite(MOSI,HIGH);
-  for (uint8_t i=0;i<77;i++) { digitalWrite(SCK,LOW); digitalWrite(SCK,HIGH); }
-  // SPI hw enable
-  SPI_postinit(); SD_on();
-  // CMD0
-  SPI.transfer(SD_CMD0,sizeof(SD_CMD0));
-  for (ncr=0;ncr<=8;ncr++) { R1.b=SPI.transfer(0xFF); if (R1.b != 0xFF) break; }
-  SPI.transfer(0xFF); SPI.transfer(0xFF); 
-  if (R1.b!=SD_R1_IDLE) { Serial.println("CMD0 error"); } else {
-    Serial.println("CMD0 ok");
-    // CMD8
-    SPI.transfer(SD_CMD8,sizeof(SD_CMD8));
-    for (ncr=0;ncr<=8;ncr++) { R1.b=SPI.transfer(0xFF); if (R1.b != 0xFF) break; }
-    uint32_t r7=0; for(uint8_t i=0;i<sizeof(r7);i++) r7=(r7<<8)|SPI.transfer(0xFF);
-    SPI.transfer(0xFF); SPI.transfer(0xFF); 
-    Serial.print("CMD8(0x1AA) R1:"); Serial.print(R1.b);
-    if (R1.b!=SD_R1_IDLE) { Serial.println("CMD8/R1 error"); } else {
-      Serial.print(" R7:");  Serial.print(r7,HEX); Serial.print(" ");
-      if (r7!=0x1AA) { Serial.println("CMD8/0x1AA error: only SDv2 supported"); } else {
-        Serial.println("Ok, SDv2 detected");
-        // ACMD41_40
-        Serial.print("ACMD41(0x40000000):");
-        SPI.transfer(SD_ACMD41_40,sizeof(SD_ACMD41_40));
-        for (ncr=0;ncr<=8;ncr++) { R1.b=SPI.transfer(0xFF); if (R1.b != 0xFF) break; }
-        SPI.transfer(0xFF); SPI.transfer(0xFF); 
-        // ACMD41_00
-        Serial.print("ACMD41(0x00000000):");
-        SPI.transfer(SD_ACMD41_00,sizeof(SD_ACMD41_00));
-        for (ncr=0;ncr<=8;ncr++) { R1.b=SPI.transfer(0xFF); if (R1.b != 0xFF) break; }
-        SPI.transfer(0xFF); SPI.transfer(0xFF); 
-      }
-    } // CMD8 R1 part ok
-  } // CMD0 ok
+  uint8_t R1;
+  uint8_t buf[0x10]; for (uint8_t i=0;i<sz;i++) buf[i]=cmd[i]; // copy cmd
+  SPI.transfer(buf,sz);
+  for ( ncr=0,R1=0xFF ; ncr<8&R1==0xFF; ncr++,R1=SPI.transfer(0xFF) );
+  return R1;
 }
 
-void SD_on(void) { digitalWrite(SS, LOW); /* SS# */ }
+uint8_t SD_ACMD(uint8_t *cmd, uint8_t sz) {
+  if (SD_CMD_R1(SD_ACMD_PFX,sizeof(SD_ACMD_PFX)) != 0x01) { Serial.println("ACMD_PFX error"); return 0xFF; } else {
+    return SD_CMD_R1(cmd,sz);
+  }
+}
+
+uint8_t SD_CMD_R7(uint8_t *cmd, uint8_t sz, uint32_t *r7) {
+  uint8_t r1 = SD_CMD_R1(cmd,sz);
+  for (uint8_t i=0;i<sizeof(uint32_t);i++)
+    *r7 = ( *r7 << 8 ) | SPI.transfer(0xFF);
+  return r1;
+}
+
+inline uint8_t SD_CMD_R3(uint8_t *cmd, uint8_t sz, uint32_t *r3) {
+  SD_CMD_R7(cmd,sz,r3);
+}
+
+bool SD_init() {
+  // init using grabbed track from LisFiles.ino
+  SPI_preinit();
+  // init procedure corresponds to @ http://elm-chan.org/docs/mmc/gx1/sdinit.png
+  // wait 1+ ms on power on
+  delay(1);
+  // dummy 74+ clock CS=DI=high
+  digitalWrite(SS,HIGH); digitalWrite(MOSI,HIGH);
+  for (uint8_t i=0;i<77;i++) { digitalWrite(MOSI,LOW); digitalWrite(MOSI,HIGH); }
+  // SPI hw enable
+  SPI_postinit(); SD_on();
+  Serial.println("SD init:");
+  // cmd0
+  if (SD_CMD_R1(SD_CMD0,sizeof(SD_CMD0)) != 0x01) { Serial.println("CMD0 error"); return false; } else {
+    Serial.println("CMD0 ok");
+    // cmd8
+    uint32_t R7=0;
+    if (SD_CMD_R7(SD_CMD8,sizeof(SD_CMD8),&R7) != 0x01) { Serial.println("CMD8/R1 error"); return false; } else {
+      if (R7!=0x1AA) { Serial.println("CMD8/R7(0x1AA) error: SD ver.2 only supported"); return false; } else {
+        Serial.println("CMD8 ok");
+        // acmd41 /prefixed with cmd55/
+          Serial.print("ACMD41/0x40000000 seq ");
+          while (SD_ACMD(SD_ACMD41_40,sizeof(SD_ACMD41_40)) != 0x00) Serial.print(".");
+          Serial.println(" Ok");
+          // cmd58
+          uint32_t OCR=0;
+          SD_CMD_R3(SD_CMD58,sizeof(SD_CMD58),&OCR);
+          SD_off();
+          return true;
+      }
+    }
+  }
+}
 
 void setup(void) {
   Serial.begin(115200);
