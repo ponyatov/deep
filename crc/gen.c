@@ -69,7 +69,7 @@ int main() {
 	*/
 	// SD SPI commands
 	// cmdX
-	uint8_t cmdX[]={0x40|58,0x00,0x00,0x00,0x00};
+	uint8_t cmdX[]={0x40|16,0x00,0x00,0x02,0x00};
 	uint8_t cmdX_crc7=crc7(cmdX,sizeof(cmdX));
 	printf("\ncmdX crc7:%.2X crc7<<1|1:%.2X\n\n",cmdX_crc7,cmdX_crc7<<1|1);
 	return 0;

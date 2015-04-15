@@ -30,6 +30,8 @@ uint8_t SD_CMD0[] = {0xFF,0x40|0,0x00,0x00,0x00,0x00,0x4A<<1|1};
 uint8_t SD_CMD8[] = {0xFF,0x40|8,0x00,0x00,0x01,0xAA,0x43<<1|1};
 #define SD_CMD_SEND_IF_COND SD_CMD8
 
+uint8_t SD_CMD16_512K[] = {0xFF,0x40|16,0x00,0x00,0x02,0x00,0x0A<<1|1};
+
 uint8_t SD_CMD58[] = {0xFF,0x40|58,0x00,0x00,0x00,0x00,0x7E<<1|1};
 #define SD_CMD_READ_OCR SD_CMD58
 
@@ -67,6 +69,16 @@ inline uint8_t SD_CMD_R3(uint8_t *cmd, uint8_t sz, uint32_t *r3) {
   SD_CMD_R7(cmd,sz,r3);
 }
 
+union SD_OCR {
+  uint32_t i;
+  struct {
+    uint32_t busy:1;
+    uint32_t ccs:1;
+    uint32_t :6;
+    uint32_t vRange:9;
+  } __attribute__ ((packed)) b;
+};
+
 bool SD_init() {
   // init using grabbed track from LisFiles.ino
   SPI_preinit();
@@ -91,14 +103,22 @@ bool SD_init() {
           Serial.print("ACMD41/0x40000000 seq ");
           while (SD_ACMD(SD_ACMD41_40,sizeof(SD_ACMD41_40)) != 0x00) Serial.print(".");
           Serial.println(" Ok");
-          // cmd58
-          uint32_t OCR=0;
-          SD_CMD_R3(SD_CMD58,sizeof(SD_CMD58),&OCR);
-          SD_off();
-          return true;
-      }
-    }
-  }
+          // cmd58 check power state
+          SD_OCR OCR;
+          if (SD_CMD_R3(SD_CMD58,sizeof(SD_CMD58),&OCR.i)!=0x00)  { Serial.println("CMD58/R1 error"); return false; } else {
+            // analyze SD info
+            if (OCR.b.ccs) { Serial.println("CMD58/CCS error: SDv2 with block address not supported"); return false; } else {
+              // cmd16 set block size
+              if (SD_CMD_R1(SD_CMD16_512K,sizeof(SD_CMD16_512K))!=0x00) { Serial.println("CMD16/512K block error"); return false; } else {
+                // f**g final
+                SD_off();
+                return true;
+              } // cmd16/blocksz
+            } // cmd58/ccs=1 block address
+          } // cmd58/r1
+      } // cmd8/0x1AA SD v.2 only
+    } // cmd8/r1
+  } // cmd0
 }
 
 void setup(void) {
