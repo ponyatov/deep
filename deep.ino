@@ -30,6 +30,11 @@ uint8_t SD_CMD0[] = {0xFF,0x40|0,0x00,0x00,0x00,0x00,0x4A<<1|1};
 uint8_t SD_CMD8[] = {0xFF,0x40|8,0x00,0x00,0x01,0xAA,0x43<<1|1};
 #define SD_CMD_SEND_IF_COND SD_CMD8
 
+uint8_t SD_CMD9 [] = {0xFF,0x40|9 ,0x00,0x00,0x00,0x00,0x57<<1|1};
+#define SD_CMD_SEND_CSD SD_CMD9
+uint8_t SD_CMD10[] = {0xFF,0x40|10,0x00,0x00,0x00,0x00,0x0D<<1|1};
+#define SD_CMD_SEND_CID SD_CMD10
+
 uint8_t SD_CMD16_512K[] = {0xFF,0x40|16,0x00,0x00,0x02,0x00,0x0A<<1|1};
 #define SD_CMD_SET_BLOCKLEN_512K SD_CMD16_512K
 
@@ -76,7 +81,7 @@ union SD_OCR {
     uint32_t busy:1;
     uint32_t ccs:1;
     uint32_t :6;
-    uint32_t vRange:9;
+    uint32_t VHS:9; // voltage field
   } __attribute__ ((packed)) b;
 };
 
@@ -91,28 +96,43 @@ bool SD_init() {
   for (uint8_t i=0;i<77;i++) { digitalWrite(MOSI,LOW); digitalWrite(MOSI,HIGH); }
   // SPI hw enable
   SPI_postinit(); SD_on();
-  Serial.println("SD init:");
+  Serial.print("SD init: ");
   // cmd0
+  Serial.print("CMD0 ");
   if (SD_CMD_R1(SD_CMD0,sizeof(SD_CMD0)) != 0x01) { Serial.println("CMD0 error"); return false; } else {
-    Serial.println("CMD0 ok");
     // cmd8
+    Serial.print("CMD8 ");
     uint32_t R7=0;
     if (SD_CMD_R7(SD_CMD8,sizeof(SD_CMD8),&R7) != 0x01) { Serial.println("CMD8/R1 error"); return false; } else {
       if (R7!=0x1AA) { Serial.println("CMD8/R7(0x1AA) error: SD ver.2 only supported"); return false; } else {
-        Serial.println("CMD8 ok");
         // acmd41 /prefixed with cmd55/
           Serial.print("ACMD41/0x40000000 seq ");
           while (SD_ACMD(SD_ACMD41_40,sizeof(SD_ACMD41_40)) != 0x00) Serial.print(".");
-          Serial.println(" Ok");
           // cmd58 check power state
+          Serial.print("CMD58 ");
           SD_OCR OCR;
           if (SD_CMD_R3(SD_CMD58,sizeof(SD_CMD58),&OCR.i)!=0x00)  { Serial.println("CMD58/R1 error"); return false; } else {
             // analyze SD info
             if (OCR.b.ccs) { Serial.println("CMD58/CCS error: SDv2 with block address not supported"); return false; } else {
               // cmd16 set block size
+              Serial.print("CMD16/512K ");
               if (SD_CMD_R1(SD_CMD16_512K,sizeof(SD_CMD16_512K))!=0x00) { Serial.println("CMD16/512K block error"); return false; } else {
+                // get extra card info
+                uint8_t cidcsd[0x20];
+                Serial.print("\nCID: ");
+                if (SD_CMD_R1(SD_CMD_SEND_CID,sizeof(SD_CMD_SEND_CID))==0x00) {
+                  for (uint8_t cid=0;cid<sizeof(cidcsd);cid++) cidcsd[cid]=SPI.transfer(0xFF);
+                  for (uint8_t cid=0;cid<sizeof(cidcsd);cid++) Serial.print(cidcsd[cid],HEX);
+                }
+                /*
+                if (SD_CMD_R1(SD_CMD_SEND_CSD,sizeof(SD_CMD_SEND_CSD))==0x00) {
+                  Serial.print("\nCSD: ");
+                  for (uint8_t csd=0;csd<0x20;csd++) Serial.print(SPI.transfer(0xFF),HEX);
+                }
+                */
                 // f**g final
                 SD_off();
+                Serial.println("\n================");
                 return true;
               } // cmd16/blocksz
             } // cmd58/ccs=1 block address
