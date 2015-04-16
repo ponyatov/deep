@@ -69,8 +69,8 @@ struct {
 void setup(void) {
   Serial.begin(115200);
   if (SDx.begin()) {
-    if (SDx.read(0x00)) SDx.dump();
-    else Serial.println("read error");
+    if (SDx.read(0xFFFFFFFFL)) SDx.dump(); else Serial.println("read error");
+    if (SDx.read(0x00000000L)) SDx.dump(); else Serial.println("read error");
   } // SD.begin ok
 }
 
