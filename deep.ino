@@ -65,45 +65,11 @@ struct {
   uint16_t CRC;
 } SD_R_RESULT;
 
-bool SD_R(uint32_t sector,uint8_t *buf) {
-  bool Ok=false;
-  SD_on();
-  SD_R_CMD.f.addr=sector;
-  SD_R_RESULT.R1=SD_CMD_R1(SD_R_CMD.b,sizeof(SD_R_CMD.b)); // cmd17 r/1sector
-  if (SD_R_RESULT.R1==0x00) {
-    for (SD_R_RESULT.token=0xFF;SD_R_RESULT.token==0xFF;SD_R_RESULT.token=SPI.transfer(0xFF)); // wait token
-    if (SD_R_RESULT.token==SD_R_TOKEN) {
-      for (uint16_t i=0;i<SD_SECTOR_SIZE;i++) buf[i]=SPI.transfer(0xFF); // read data
-      SD_R_RESULT.CRC = SPI.transfer(0xFF)<<8|SPI.transfer(0xFF); // read crc
-      Ok=true;
-    }
-  }
-  SD_off();
-  return Ok;
-}
-
-void dump(uint8_t *dat, int len) {
-  for (int i=0;i<len;i++) {
-    if (i%0x10==0) {
-      Serial.print("\n");
-      Serial.print((i>>12)&0xF,HEX); 
-      Serial.print((i>> 8)&0xF,HEX); 
-      Serial.print((i>> 4)&0xF,HEX); 
-      Serial.print((i    )&0xF,HEX); 
-      Serial.print(": "); 
-    }
-      Serial.print(" ");
-      Serial.print((dat[i]>> 4)&0xF,HEX); 
-      Serial.print((dat[i]    )&0xF,HEX); 
-  }
-  Serial.print("\n");
-}
 
 void setup(void) {
   Serial.begin(115200);
   if (SDx.begin()) {
-    Serial.println("\nsector 0x00:");
-    if (SDx.read(0x00)) dump(SDx.buf.b,SDx.sectorsz);
+    if (SDx.read(0x00)) SDx.dump();
     else Serial.println("read error");
   } // SD.begin ok
 }

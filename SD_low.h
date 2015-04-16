@@ -12,7 +12,7 @@ class SD_LOW {
   public:
     static const uint16_t sectorsz =512; // sector size, bytes
     struct SECTOR {                      // i/o buffer for data
-    uint32_t addr;
+    uint32_t sector;
     uint8_t r1;
     uint8_t token;
     uint8_t b[sectorsz];
@@ -103,6 +103,7 @@ class SD_LOW {
     R7& cmdR7(const uint8_t *cmd, uint32_t op=0); // send command R7 resp
     R1& acmd(const uint8_t *cmd, uint32_t op=0);  // send cmd55 cmdxx R1 resp
     bool error(void);                   // log error
+    void dump(void);                    // dump current sector
 };
 
 #endif // _H_SDLOW_

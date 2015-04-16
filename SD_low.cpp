@@ -130,7 +130,7 @@ void SD_LOW::on (void)  { digitalWrite(SS, LOW); /* SS# */ }
 void SD_LOW::off(void)  { digitalWrite(SS,HIGH); /* SS# */ }
 
 bool SD_LOW::read(uint32_t sector) {
-  buf.addr=sector; buf.ok=false;
+  buf.sector=sector; buf.ok=false;
   on();
   buf.r1=cmdR1(cmd17,sector).b;
   if (buf.r1 == R1_READY) {
@@ -149,5 +149,23 @@ bool SD_LOW::read(uint32_t sector) {
   }
   off();
   return buf.ok;
+}
+
+void SD_LOW::dump(void) {
+  Serial.print("\nsector "); Serial.print(buf.sector);
+  for (int i=0;i<sectorsz;i++) {
+    if (i%0x10==0) {
+      Serial.print("\n");
+      Serial.print((i>>12)&0xF,HEX); 
+      Serial.print((i>> 8)&0xF,HEX); 
+      Serial.print((i>> 4)&0xF,HEX); 
+      Serial.print((i    )&0xF,HEX); 
+      Serial.print(": "); 
+    }
+      Serial.print(" ");
+      Serial.print((buf.b[i]>> 4)&0xF,HEX); 
+      Serial.print((buf.b[i]    )&0xF,HEX); 
+  }
+  Serial.print("\n");
 }
 
