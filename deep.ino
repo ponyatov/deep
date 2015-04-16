@@ -85,6 +85,21 @@ union SD_OCR {
   } __attribute__ ((packed)) b;
 };
 
+union SD_CID {
+  uint8_t b[128/8];
+  struct {
+    uint32_t MID:8;      // Manufacturer ID
+    uint32_t OID:16;     // OEM/Application ID
+    char     PNM[40/8];  // Product name
+    uint32_t PRV:8;      // Product revision
+    uint32_t PSN:32;     // Product serial number
+    uint32_t :4;     
+    uint32_t MDT:12;     // Manufacturing date
+    uint32_t CRC:7;
+    uint32_t :1;
+  } __attribute__ ((packed)) f; 
+};
+
 bool SD_init() {
   // init using grabbed track from LisFiles.ino
   SPI_preinit();
@@ -117,6 +132,7 @@ bool SD_init() {
               // cmd16 set block size
               Serial.print("CMD16/512K ");
               if (SD_CMD_R1(SD_CMD16_512K,sizeof(SD_CMD16_512K))!=0x00) { Serial.println("CMD16/512K block error"); return false; } else {
+                /*
                 // get extra card info
                 uint8_t cidcsd[0x20];
                 Serial.print("\nCID: ");
@@ -124,14 +140,7 @@ bool SD_init() {
                   for (uint8_t cid=0;cid<sizeof(cidcsd);cid++) cidcsd[cid]=SPI.transfer(0xFF);
                   for (uint8_t cid=0;cid<sizeof(cidcsd);cid++) Serial.print(cidcsd[cid],HEX);
                 }
-                /*
-                if (SD_CMD_R1(SD_CMD_SEND_CSD,sizeof(SD_CMD_SEND_CSD))==0x00) {
-                  Serial.print("\nCSD: ");
-                  for (uint8_t csd=0;csd<0x20;csd++) Serial.print(SPI.transfer(0xFF),HEX);
-                }
                 */
-                // f**g final
-                SD_off();
                 Serial.println("\n================");
                 return true;
               } // cmd16/blocksz
