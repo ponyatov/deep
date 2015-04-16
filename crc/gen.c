@@ -57,6 +57,7 @@ uint8_t crc7(uint8_t *buf, size_t len) {
 	return crc_byte(crc7_table,buf,len);
 }
 
+uint8_t buf[512];
 
 int main() {
 	/*
@@ -72,6 +73,11 @@ int main() {
 	uint8_t cmdX[]={0x40|10,0x00,0x00,0x00,0x00};
 	uint8_t cmdX_crc7=crc7(cmdX,sizeof(cmdX));
 	printf("\ncmdX crc7:%.2X crc7<<1|1:%.2X\n\n",cmdX_crc7,cmdX_crc7<<1|1);
+	// make test sector
+	for (uint32_t i=1;i<sizeof(buf)+1;i++) buf[i-1]=i;
+	FILE *fh=fopen("test512.bin","wb");
+	fwrite(buf,sizeof(buf),sizeof(buf[0]),fh);
+	fclose(fh);
 	return 0;
 }
 
