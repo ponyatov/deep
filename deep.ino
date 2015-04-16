@@ -1,13 +1,9 @@
 
 #include <SPI.h>
+#include "SD_low.h"
+SD_LOW SDx;
 
 // SD commands set
-
-uint8_t SD_CMD0[] = {0xFF,0x40|0,0x00,0x00,0x00,0x00,0x4A<<1|1};
-#define SD_CMD_GO_IDLE_STATE SD_CMD0
-
-uint8_t SD_CMD8[] = {0xFF,0x40|8,0x00,0x00,0x01,0xAA,0x43<<1|1};
-#define SD_CMD_SEND_IF_COND SD_CMD8
 
 uint8_t SD_CMD9 [] = {0xFF,0x40|9 ,0x00,0x00,0x00,0x00,0x57<<1|1};
 #define SD_CMD_SEND_CSD SD_CMD9
@@ -102,14 +98,6 @@ union {
 
 bool SD_init() {
   Serial.print("SD init: ");
-  // cmd0
-  Serial.print("CMD0 ");
-  if (SD_CMD_R1(SD_CMD0,sizeof(SD_CMD0)) != 0x01) { Serial.println("CMD0 error"); return false; } else {
-    // cmd8
-    Serial.print("CMD8 ");
-    uint32_t R7=0;
-    if (SD_CMD_R7(SD_CMD8,sizeof(SD_CMD8),&R7) != 0x01) { Serial.println("CMD8/R1 error"); return false; } else {
-      if (R7!=0x1AA) { Serial.println("CMD8/R7(0x1AA) error: SD ver.2 only supported"); return false; } else {
         // acmd41 /prefixed with cmd55/
           Serial.print("ACMD41/0x40000000 seq ");
           while (SD_ACMD(SD_ACMD41_40,sizeof(SD_ACMD41_40)) != 0x00) Serial.print(".");
@@ -139,9 +127,6 @@ bool SD_init() {
               } // cmd16/blocksz
             } // cmd58/ccs=1 block address
           } // cmd58/r1
-      } // cmd8/0x1AA SD v.2 only
-    } // cmd8/r1
-  } // cmd0
 }
 
 struct {
@@ -168,9 +153,6 @@ bool SD_R(uint32_t sector,uint8_t *buf) {
 }
 
 uint8_t SD_IO_BUF[SD_SECTOR_SIZE];
-
-#include "SD_low.h"
-SD_LOW SDx;
 
 void setup(void) {
   Serial.begin(115200);
