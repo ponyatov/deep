@@ -129,8 +129,8 @@ void SD_LOW::spi_postinit(void) {
 void SD_LOW::on (void)  { digitalWrite(SS, LOW); /* SS# */ }
 void SD_LOW::off(void)  { digitalWrite(SS,HIGH); /* SS# */ }
 
-SD_LOW::SECTOR& SD_LOW::read(uint32_t sector) {
-  buf.addr=sector;
+bool SD_LOW::read(uint32_t sector) {
+  buf.addr=sector; buf.ok=false;
   on();
   buf.r1=cmdR1(cmd17,sector).b;
   if (buf.r1 == R1_READY) {
@@ -144,9 +144,10 @@ SD_LOW::SECTOR& SD_LOW::read(uint32_t sector) {
     if (buf.token == TOKEN_R) {
       for (uint16_t i=0;i<sectorsz;i++) buf.b[i]=SPI.transfer(0xFF);
       buf.crc = (SPI.transfer(0xFF)<<8)|SPI.transfer(0xFF);
+      buf.ok=true;
     } else buf.crc=0xFFFF;
   }
   off();
-  return buf;
+  return buf.ok;
 }
 

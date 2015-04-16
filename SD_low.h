@@ -9,14 +9,15 @@
 #include <SPI.h>
 
 class SD_LOW {
-    static const uint16_t sectorsz =512; // sector size, bytes
   public:
+    static const uint16_t sectorsz =512; // sector size, bytes
     struct SECTOR {                      // i/o buffer for data
     uint32_t addr;
     uint8_t r1;
     uint8_t token;
     uint8_t b[sectorsz];
     uint16_t crc;
+    bool ok;
     } buf;
     
     // \ r/w tokens (data block begin markers)
@@ -93,8 +94,8 @@ class SD_LOW {
     void end(void);
     void on(void);                      // enable card chipselect
     void off(void);                     // disable card
-    SECTOR& read(uint32_t sector);     // sector -> buffer
-    void write(uint32_t sector);        // buffer -> sector
+    bool read(uint32_t sector);         // sector -> buffer
+    bool write(uint32_t sector);        // buffer -> sector
     void spi_preinit(void);
     void spi_postinit(void);
     R1& cmdR1(const uint8_t *cmd, uint32_t op=0); // send command R1 resp
