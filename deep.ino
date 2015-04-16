@@ -1,27 +1,6 @@
 
 #include <SPI.h>
 
-void SPI_preinit(void) {
-  /* mega 1280/2560 @ variants/mega/pins_arduino.h
-  static const uint8_t SS   = 53;
-  static const uint8_t SCK  = 52;
-  static const uint8_t MOSI = 51;
-  static const uint8_t MISO = 50;
-  */
-  pinMode(SS,  OUTPUT);
-  pinMode(SCK, OUTPUT);
-  pinMode(MOSI,OUTPUT);
-  pinMode(MISO, INPUT);
-}
-
-void SPI_postinit(void) {
-  SPI.begin();
-  SPI.setClockDivider(SPI_CLOCK_DIV128);
-  // required for SD/MMC
-  SPI.setDataMode(SPI_MODE0);
-  SPI.setBitOrder(MSBFIRST);
-}
-
 // SD commands set
 
 uint8_t SD_CMD0[] = {0xFF,0x40|0,0x00,0x00,0x00,0x00,0x4A<<1|1};
@@ -122,16 +101,6 @@ union {
 #define SD_SECTOR_SIZE 512
 
 bool SD_init() {
-  // init using grabbed track from LisFiles.ino
-  SPI_preinit();
-  // init procedure corresponds to @ http://elm-chan.org/docs/mmc/gx1/sdinit.png
-  // wait 1+ ms on power on
-  delay(1);
-  // dummy 74+ clock CS=DI=high
-  digitalWrite(SS,HIGH); digitalWrite(MOSI,HIGH);
-  for (uint8_t i=0;i<77;i++) { digitalWrite(MOSI,LOW); digitalWrite(MOSI,HIGH); }
-  // SPI hw enable
-  SPI_postinit(); SD_on();
   Serial.print("SD init: ");
   // cmd0
   Serial.print("CMD0 ");
@@ -200,8 +169,12 @@ bool SD_R(uint32_t sector,uint8_t *buf) {
 
 uint8_t SD_IO_BUF[SD_SECTOR_SIZE];
 
+#include "SD_low.h"
+SD_LOW SDx;
+
 void setup(void) {
   Serial.begin(115200);
+  SDx.begin();
   SD_init();
   Serial.print("Read #00: "); Serial.println(SD_R(0x00000000,SD_IO_BUF));
   Serial.print("CRC: "); Serial.println(SD_R_RESULT.CRC,HEX);
