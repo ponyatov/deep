@@ -132,7 +132,20 @@ void SD_LOW::off(void)  { digitalWrite(SS,HIGH); /* SS# */ }
 SD_LOW::SECTOR& SD_LOW::read(uint32_t sector) {
   buf.addr=sector;
   on();
-  R1 r1 = cmdR1(cmd17,sector);
+  buf.r1=cmdR1(cmd17,sector).b;
+  if (buf.r1 == R1_READY) {
+    // wait data token
+    for (
+      buf.token =TOKEN_X;
+      buf.token==TOKEN_X;
+      buf.token=SPI.transfer(0xFF)
+    );
+    // read data stream
+    if (buf.token == TOKEN_R) {
+      for (uint16_t i=0;i<sectorsz;i++) buf.b[i]=SPI.transfer(0xFF);
+      buf.crc = (SPI.transfer(0xFF)<<8)|SPI.transfer(0xFF);
+    } else buf.crc=0xFFFF;
+  }
   off();
   return buf;
 }

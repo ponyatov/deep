@@ -13,8 +13,17 @@ class SD_LOW {
   public:
     struct SECTOR {                      // i/o buffer for data
     uint32_t addr;
+    uint8_t r1;
+    uint8_t token;
     uint8_t b[sectorsz];
+    uint16_t crc;
     } buf;
+    
+    // \ r/w tokens (data block begin markers)
+    static const uint8_t TOKEN_X =0b11111111;
+    static const uint8_t TOKEN_R =0b11111110;
+    static const uint8_t TOKEN_W =0b11111100;
+    // /
     
     // \ commands set
     static const uint8_t cmdsz =7;       // SD command size, bytes
