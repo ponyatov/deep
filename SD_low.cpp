@@ -152,7 +152,11 @@ bool SD_LOW::read(uint32_t sector) {
 }
 
 void SD_LOW::dump(void) {
-  Serial.print("\nsector "); Serial.print(buf.sector);
+  Serial.print("\nsector:"); Serial.print(buf.sector);
+  Serial.print(" ok:"); Serial.print(buf.ok); 
+  Serial.print(" crc:"); Serial.print(buf.crc,HEX); 
+  Serial.print(" token:"); Serial.print(buf.token,BIN); 
+  Serial.print(" R1:"); Serial.print(buf.r1,BIN); 
   for (int i=0;i<sectorsz;i++) {
     if (i%0x10==0) {
       Serial.print("\n");
