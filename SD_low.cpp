@@ -26,15 +26,15 @@ inline uint32_t bswap32(uint32_t op) {
 
 SD_LOW::R1& SD_LOW::cmdR1(const uint8_t *cmd, uint32_t op) {
   CMD buf; memcpy(buf.b,cmd,cmdsz); // copy cmd to tmp buffer
-  uint32_t opr = bswap32(op);
-  if (buf.f.op != opr) buf.f.op=opr;
+  uint32_t opr = bswap32(op);          // reverse operand bytes
+  if (buf.f.op != opr) buf.f.op=opr;  // update operand
   SPI.transfer(buf.b,cmdsz); // send command package over spi
   uint8_t Ncr;
   SD_LOW::R1 R1;
   for (  
-    Ncr=0, R1.b =0xFF;
-    Ncr<8, R1.b==0xFF;
-    Ncr++, R1.b =SPI.transfer(0xFF)
+    Ncr=0 , R1.b =0xFF;
+    Ncr<8 & R1.b==0xFF;
+    Ncr++ , R1.b =SPI.transfer(0xFF)
     );
   return R1;
 }
@@ -104,7 +104,7 @@ bool SD_LOW::begin(void) {
   } // cmd0
 }
 
-bool SD_LOW::error(void) { Serial.println("error"); return false; }
+bool SD_LOW::error(void) { off(); Serial.println("error"); return false; }
 
 void SD_LOW::spi_preinit(void) {
   /* mega 1280/2560 @ variants/mega/pins_arduino.h

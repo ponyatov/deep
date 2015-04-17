@@ -71,7 +71,7 @@ void setup(void) {
   memset(SDx.buf.b,0xFF,512);
   if (SDx.begin()) {
     //if (SDx.read(0x00000000L)) SDx.dump(); else Serial.println("read error");
-    SDx.write(0);
+    SDx.write(-1L);
     SDx.dump();
   } // SD.begin ok
 }
