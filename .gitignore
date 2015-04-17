@@ -3,5 +3,8 @@
 *.bak
 *.net
 *-cache.lib
-crc/*.exe
+ctools/*.exe
+ctools/*.bin
+ctools/*.img
+SimplifiedSD.pdf
 
