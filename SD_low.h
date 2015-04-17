@@ -15,15 +15,24 @@ class SD_LOW {
     uint32_t sector;
     uint8_t r1;
     uint8_t token;
+    uint8_t response;
     uint8_t b[sectorsz];
     uint16_t crc;
     bool ok;
     } buf;
     
+    static const uint8_t SD_BUSY=0;
+    // \ data response codes
+    static const uint8_t RESP_MASQ     =0b00011111;
+    static const uint8_t RESP_ACCEPTED =0b00000101;
+    static const uint8_t RESP_BADCRC   =0b00001011;
+    static const uint8_t RESP_WERR     =0b00001101;
+    // /
+    
     // \ r/w tokens (data block begin markers)
     static const uint8_t TOKEN_X =0b11111111;
-    static const uint8_t TOKEN_R =0b11111110;
-    static const uint8_t TOKEN_W =0b11111100;
+    static const uint8_t TOKEN_RW_SINGLE =0b11111110;
+    static const uint8_t TOKEN_MULTI =0b11111100;
     // /
     
     // \ commands set
@@ -104,6 +113,10 @@ class SD_LOW {
     R1& acmd(const uint8_t *cmd, uint32_t op=0);  // send cmd55 cmdxx R1 resp
     bool error(void);                   // log error
     void dump(void);                    // dump current sector
+    
+    // CRC section
+    
+    static const uint8_t crc7_table[];
 };
 
 #endif // _H_SDLOW_
