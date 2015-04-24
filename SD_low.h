@@ -117,6 +117,13 @@ class SD_LOW {
     // CRC section
     
     static const uint8_t crc7_table[];
+    
+    // data buffering using circular ring
+    
+    struct {
+      uint32_t start;
+      uint32_t end;
+    } ring;
 };
 
 #endif // _H_SDLOW_
