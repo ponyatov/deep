@@ -1,4 +1,8 @@
-exec: genimage.exe
+gen: gen.exe
+	gen.exe
+	pause
+
+genimage: genimage.exe
 	genimage.exe
 	pause
 

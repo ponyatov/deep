@@ -14,17 +14,10 @@ void setup(void) {
 	SDx.ring.end = SDx.ring.start + Meg1 / SD_LOW::sectorsz; 
 
 	Serial.begin(115200);
-	memset(SDx.buf.b, 0xFF, SD_LOW::sectorsz);
 	if (SDx.begin()) {
-		SDx.read(SDx.ring.start);
-		SDx.dump();
-		/*
-		 //if (SDx.read(0x00000000L)) SDx.dump(); else Serial.println("read error");
-		 Serial.println("test write first ring.img sector");
-		 Serial.println( SDx.write(SDx.ring.start) ); // write first 512 bytes of F:\ring.img
-		 SDx.dump();
-		 Serial.println("done");
-		 */
+		SDx.read(SDx.ring.start); SDx.dump();
+		memset(SDx.buf.b, 0xFF, SD_LOW::sectorsz);
+		SDx.write(SDx.ring.start); SDx.dump();
 	} // SD.begin ok
 }
 

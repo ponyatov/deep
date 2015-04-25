@@ -133,7 +133,7 @@ void SD_LOW::off(void)  { digitalWrite(SS,HIGH); /* SS# */ }
 bool SD_LOW::write(uint32_t sector) {
   buf.sector=sector; buf.ok=false;
   on();
-  buf.r1=cmdR1(cmd24,sector).b;                              // block_write cmd
+  buf.r1=cmdR1(cmd24,sector*sectorsz).b;                       // block_write cmd
   if (buf.r1==0) {
     SPI.transfer(0xFF);                                        // >=1 byte pad
     buf.token=TOKEN_RW_SINGLE; SPI.transfer(TOKEN_RW_SINGLE);  // token
@@ -142,6 +142,8 @@ bool SD_LOW::write(uint32_t sector) {
     buf.response=SPI.transfer(0xFF);                          // read resp
     buf.ok=(buf.response&RESP_MASQ)==RESP_ACCEPTED;
     while (SPI.transfer(0xFF)==SD_BUSY);                      // wait busy state
+  } else {
+	for (uint32_t i = 0; i < 0x100; i++) SPI.transfer(0xFF);
   }
   off();
   return buf.ok;
@@ -150,7 +152,7 @@ bool SD_LOW::write(uint32_t sector) {
 bool SD_LOW::read(uint32_t sector) {
   buf.sector=sector; buf.ok=false;
   on();
-  buf.r1=cmdR1(cmd17,sector).b;
+  buf.r1=cmdR1(cmd17,sector*sectorsz).b;
   if (buf.r1 == R1_READY) {
     // wait data token
     for (
