@@ -17,8 +17,6 @@ void setup(void) {
 	memset(SDx.buf.b, 0xFF, SD_LOW::sectorsz);
 	if (SDx.begin()) {
 		SDx.read(SDx.ring.start);
-		for (uint32_t i = 0; i < 0x100; i++)
-			SPI.transfer(0xFF);
 		SDx.dump();
 		/*
 		 //if (SDx.read(0x00000000L)) SDx.dump(); else Serial.println("read error");

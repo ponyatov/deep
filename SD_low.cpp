@@ -162,8 +162,10 @@ bool SD_LOW::read(uint32_t sector) {
     if (buf.token == TOKEN_RW_SINGLE) {
       for (uint16_t i=0;i<sectorsz;i++) buf.b[i]=SPI.transfer(0xFF);
       buf.crc = (SPI.transfer(0xFF)<<8)|SPI.transfer(0xFF);
-      buf.ok=true;
+	  buf.ok = true;
     } else buf.crc=0xFFFF;
+  } else {
+	for (uint32_t i = 0; i < 0x100; i++) SPI.transfer(0xFF);
   }
   off();
   return buf.ok;
