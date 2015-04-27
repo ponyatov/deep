@@ -12,6 +12,6 @@ char buf[]="DD.MM.YYYY HH:MM:SS";
 
 int main() {
 	cout << endl << "port: " << sp.SymName << endl << endl;
-	while ( sp.send(buf,sizeof(buf)),Sleep(1000) );
+	while ( sp.send(buf,sizeof(buf)) ) Sleep(1000);
 	return 0;
 }
