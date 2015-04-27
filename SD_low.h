@@ -8,6 +8,9 @@
 #include <Arduino.h>
 #include <SPI.h>
 
+#define Meg1 (1024L*1024)
+#define Gig1 (Meg1*1024L)
+
 class SD_LOW {
   public:
     static const uint16_t sectorsz =512; // sector size, bytes
@@ -123,7 +126,10 @@ class SD_LOW {
     struct {
       uint32_t start;
       uint32_t end;
+      uint32_t r,w; // ring pointers
     } ring;
+
+    void ring_clean(void);
 };
 
 #endif // _H_SDLOW_
