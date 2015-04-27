@@ -1,3 +1,6 @@
+compoll: compoll.exe
+	compoll.exe
+
 gen: gen.exe
 	gen.exe
 	pause
@@ -9,6 +12,8 @@ genimage: genimage.exe
 %.exe: %.c
 	gcc -std=c99 -o $@ $<
 
-%.exe: %.cpp
-	g++ -Wall -o $@ $<
+MODULES =
+MODULES += ../../emCpp/hardware/win32/UART.cpp
+%.exe: %.cpp $(MODULES)
+	g++ -Wall -I../.. -o $@ $< $(MODULES)
 

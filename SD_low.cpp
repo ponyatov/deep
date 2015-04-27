@@ -218,4 +218,14 @@ const uint8_t SD_LOW::crc7_table[] = {
 void SD_LOW::ring_clean(void) {
 	ring.r=ring.start;
 	ring.w=ring.start;
+	ring.ptr=0;
+}
+
+void SD_LOW::ring_append(uint8_t *buf,uint8_t sz) {
+	for (uint8_t i=0;i<sz;i++) {
+		ring.buf[ring.ptr++]=buf[i]; // append next char
+		if (ring.ptr>sizeof(ring.buf)) { // buffer filled
+			ring.ptr=0;
+		}
+	}
 }

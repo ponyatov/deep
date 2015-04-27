@@ -127,10 +127,12 @@ class SD_LOW {
       uint32_t start;
       uint32_t end;
       uint32_t r,w; // ring pointers
+      uint8_t buf[sectorsz]; // buffer separated from main SD_LOW::buf
+      uint16_t ptr;
     } ring;
 
     void ring_clean(void);
+    void ring_append(uint8_t *,uint8_t);
 };
 
 #endif // _H_SDLOW_
-
