@@ -83,20 +83,10 @@ void setup(void) {
 	} // SD.begin ok
 }
 
-char hisbuf[88];
-int hisptr=0;
 void SD_poll(void) {
 	// if has active BT uplink and SD buffered data
-	if (BT_FLAG_NOW & SDx.ring_hasData()) {
-		hisbuf[hisptr++] = SDx.ring_poll();
-		if (
-				hisbuf[hisptr - 1] == 0x0A |	/* EOL */
-				hisptr > sizeof(hisbuf) |		/* buf end */
-				!SDx.ring_hasData()				/* SD ring empty */
-		) {
-			SendBT('h', hisbuf, hisptr); hisptr = 0;
-		}
-	}
+	if (BT_FLAG_NOW & SDx.ring_hasData())
+		SendBT('h', SDx.ring_poll(), SDx.sectorsz);
 }
 
 void loop(void) {

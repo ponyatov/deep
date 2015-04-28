@@ -251,5 +251,15 @@ void SD_LOW::ring_raiseptr(uint32_t &sector) {
 }
 
 bool SD_LOW::ring_hasData(void) {
-	return ((ring.r != ring.w) | ring.rptr > 0);
+	return ring.r != ring.w;
+}
+
+char *SD_LOW::ring_poll(void) {
+	if (ring.r != ring.w) {
+		read(ring.r, ring.rbuf);
+		ring_raiseptr(ring.r);
+		return ring.rbuf;
+	} else {
+		return NULL;
+	}
 }

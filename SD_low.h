@@ -130,7 +130,7 @@ class SD_LOW {
       uint32_t r,w; // ring pointers
       char rbuf[sectorsz]; // reading buffer separated from main SD_LOW::buf
       char wbuf[sectorsz]; // writing buffer separated from main SD_LOW::buf
-      uint16_t rptr,wptr;
+      uint16_t wptr;
       char wpadchar;		// padding symbol to end of unfilled sector
     } ring;
 
@@ -139,7 +139,7 @@ class SD_LOW {
     void ring_flush(void);			// flush ring to SD
     void ring_raiseptr(uint32_t&);	// raise pointer ringically
     bool ring_hasData(void);		// return flag data ready in SD buffer
-    char ring_poll();				// poll next char from SD ring
+    char *ring_poll(void);			// poll next sector from SD ring
 };
 
 #endif // _H_SDLOW_
