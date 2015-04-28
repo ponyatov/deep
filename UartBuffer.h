@@ -5,7 +5,7 @@
 
 class UartBuffer {
 	int ptr;
-	char *buf;
+	char *buf; int bufsz;
 	HardwareSerial &uart; int baud;
 	void (*callback)(char channel,char *,int sz);
 	char channel;

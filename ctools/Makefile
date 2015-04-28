@@ -1,5 +1,8 @@
+compoll: compoll.exe
+	compoll.exe
+
 gen: gen.exe
-	$<
+	gen.exe
 
 %.exe: %.c
 	gcc -std=c99 -o $@ $<

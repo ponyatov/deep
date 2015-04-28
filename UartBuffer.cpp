@@ -8,7 +8,7 @@ UartBuffer::UartBuffer(
 		int _baud) : uart(_uart) {
 	callback = _callback; channel=_channel;
 	ptr = 0;
-	buf = new char[sz];
+	buf = new char[sz]; bufsz=sz;
 	baud = _baud; uart.begin(baud);
 }
 
@@ -18,10 +18,11 @@ UartBuffer::~UartBuffer() {
 
 void UartBuffer::poll(void) {
 	if (uart.available()) {
-		buf[ptr]=uart.read();
-		if (buf[ptr]==0x0A) { // EOL detected
-			callback(channel,buf,ptr);
-			ptr=0;
-		} else ptr++;
+		buf[ptr++] = uart.read();
+		if (buf[ptr - 1] == 0x0D) ptr--; // ignore win/dos \r char
+		if (buf[ptr - 1] == 0x0A | ptr >= bufsz) { // EOL | buf full
+			callback(channel, buf, ptr);
+			ptr = 0;
+		}
 	}
 }
