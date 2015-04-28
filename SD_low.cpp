@@ -4,6 +4,10 @@
 
 #include "SD_low.h"
 
+SD_LOW::SD_LOW() {
+	ring.wpadchar=0;
+}
+
 // \ commands set: static...
 const uint8_t SD_LOW::cmd0[]  ={0xFF,0x40|0 ,0x00,0x00,0x00,0x00,0x4A<<1|1};
 const uint8_t SD_LOW::cmd8[]  ={0xFF,0x40|8 ,0x00,0x00,0x01,0xAA,0x43<<1|1};
@@ -82,7 +86,7 @@ bool SD_LOW::begin(void) {
       if ( R7.r7 != 0x1AA ) { return error(); } else {
         // acmd41/0x40
         Serial.print("ACMD41/0x40 ");
-        while ( acmd(cmd41,0x40000000).b != R1_READY ) Serial.print(". ");
+        while ( acmd(cmd41,0x40000000).b != R1_READY );
         // cmd58
         Serial.print("CMD58 ");
         SD_LOW::R3 R3=cmdR3(cmd58);
@@ -130,56 +134,57 @@ void SD_LOW::spi_postinit(void) {
 void SD_LOW::on (void)  { digitalWrite(SS, LOW); /* SS# */ }
 void SD_LOW::off(void)  { digitalWrite(SS,HIGH); /* SS# */ }
 
+bool SD_LOW::write(uint32_t sector, char *buf) {
+	bool ok = false;
+	on();
+	if (cmdR1(cmd24, sector * sectorsz).b == R1_READY) {	// block_write cmd
+		SPI.transfer(0xFF);                                      // >=1 byte pad
+		SPI.transfer(TOKEN_RW_SINGLE);  						// token
+		for (uint16_t i = 0; i < sectorsz; i++) SPI.transfer(buf[i]);  // data
+		SPI.transfer(0xFF); SPI.transfer(0xFF); 				// dummy crc
+		ok = (SPI.transfer(0xFF) & RESP_MASQ) == RESP_ACCEPTED; // check resp
+		while (SPI.transfer(0xFF) == SD_BUSY); 				// wait busy state
+	} else { // R1 error, pad 0x100 byte clock
+		for (uint16_t i = 0; i < 0x100; i++) SPI.transfer(0xFF);
+	}
+	off();
+	return ok;
+}
+
 bool SD_LOW::write(uint32_t sector) {
-  buf.sector=sector; buf.ok=false;
+	buf.sector = sector;
+	buf.ok = write(sector, buf.b);
+	return buf.ok;
+}
+
+bool SD_LOW::read(uint32_t sector, char *buf) {
+  bool ok=false;
   on();
-  buf.r1=cmdR1(cmd24,sector*sectorsz).b;                       // block_write cmd
-  if (buf.r1==0) {
-    SPI.transfer(0xFF);                                        // >=1 byte pad
-    buf.token=TOKEN_RW_SINGLE; SPI.transfer(TOKEN_RW_SINGLE);  // token
-    for (uint16_t i=0;i<sectorsz;i++) SPI.transfer(buf.b[i]);  // data
-    SPI.transfer((buf.crc>>8)&0xF); SPI.transfer((buf.crc)&0xF); // crc
-    buf.response=SPI.transfer(0xFF);                          // read resp
-    buf.ok=(buf.response&RESP_MASQ)==RESP_ACCEPTED;
-    while (SPI.transfer(0xFF)==SD_BUSY);                      // wait busy state
+  if (cmdR1(cmd17,sector*sectorsz).b == R1_READY) {		// read sector cmd17
+	uint8_t token;										// wait data token
+	for (token = TOKEN_X; token == TOKEN_X; token = SPI.transfer(0xFF));
+    // read data stream
+    if (token == TOKEN_RW_SINGLE) {
+      for (uint16_t i=0;i<sectorsz;i++) buf[i]=SPI.transfer(0xFF);	// data
+      SPI.transfer(0xFF); SPI.transfer(0xFF);			// skip crc
+	  ok = true;
+    }
   } else {
-	for (uint32_t i = 0; i < 0x100; i++) SPI.transfer(0xFF);
+	for (uint16_t i = 0; i < 0x100; i++) SPI.transfer(0xFF);
   }
   off();
-  return buf.ok;
+  return ok;
 }
 
 bool SD_LOW::read(uint32_t sector) {
-  buf.sector=sector; buf.ok=false;
-  on();
-  buf.r1=cmdR1(cmd17,sector*sectorsz).b;
-  if (buf.r1 == R1_READY) {
-    // wait data token
-    for (
-      buf.token =TOKEN_X;
-      buf.token==TOKEN_X;
-      buf.token=SPI.transfer(0xFF)
-    );
-    // read data stream
-    if (buf.token == TOKEN_RW_SINGLE) {
-      for (uint16_t i=0;i<sectorsz;i++) buf.b[i]=SPI.transfer(0xFF);
-      buf.crc = (SPI.transfer(0xFF)<<8)|SPI.transfer(0xFF);
-	  buf.ok = true;
-    } else buf.crc=0xFFFF;
-  } else {
-	for (uint32_t i = 0; i < 0x100; i++) SPI.transfer(0xFF);
-  }
-  off();
-  return buf.ok;
+	buf.sector = sector;
+	buf.ok = read(sector, buf.b);
+	return buf.ok;
 }
 
 void SD_LOW::dump(void) {
   Serial.print("\nsector:"); Serial.print(buf.sector);
   Serial.print(" ok:"); Serial.print(buf.ok); 
-  Serial.print(" crc:"); Serial.print(buf.crc,HEX); 
-  Serial.print(" token:"); Serial.print(buf.token,BIN); 
-  Serial.print(" R1:"); Serial.print(buf.r1,BIN); 
-  Serial.print(" resp:"); Serial.print(buf.response,BIN); 
   for (int i=0;i<sectorsz;i++) {
     if (i%0x10==0) {
       Serial.print("\n");
@@ -215,17 +220,36 @@ const uint8_t SD_LOW::crc7_table[] = {
 0x0E,0x07,0x1C,0x15,0x2A,0x23,0x38,0x31,0x46,0x4F,0x54,0x5D,0x62,0x6B,0x70,0x79
 };
 
-void SD_LOW::ring_clean(void) {
-	ring.r=ring.start;
-	ring.w=ring.start;
-	ring.ptr=0;
+void SD_LOW::ring_reset(void) {
+	ring.r = ring.start;
+	ring.w = ring.start;
 }
 
-void SD_LOW::ring_append(uint8_t *buf,uint8_t sz) {
-	for (uint8_t i=0;i<sz;i++) {
-		ring.buf[ring.ptr++]=buf[i]; // append next char
-		if (ring.ptr>sizeof(ring.buf)) { // buffer filled
-			ring.ptr=0;
-		}
+void SD_LOW::ring_flush(void) {
+	// endpadding to end of sector
+	int padding = sectorsz-ring.wptr;
+	memset(&ring.wbuf[ring.wptr],ring.wpadchar,padding);
+	// write data
+	write(ring.w, ring.wbuf);
+	ring_raiseptr(ring.w);
+	// reset wptr
+	ring.wptr = 0;
+}
+
+void SD_LOW::ring_append(char *buf, int sz) {
+	for (uint8_t i = 0; i < sz; i++) {		// append data
+		ring.wbuf[ring.wptr++] = buf[i]; 	// append next char
+		// flush buffer @ end of buffer
+		if (ring.wptr >= sizeof(ring.wbuf))
+			ring_flush();
 	}
+}
+
+void SD_LOW::ring_raiseptr(uint32_t &sector) {
+	sector++;
+	if (sector>ring.end) sector=ring.start;
+}
+
+bool SD_LOW::ring_hasData(void) {
+	return ((ring.r != ring.w) | ring.rptr > 0);
 }

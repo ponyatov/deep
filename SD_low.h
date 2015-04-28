@@ -13,14 +13,13 @@
 
 class SD_LOW {
   public:
+
+	SD_LOW();
+
     static const uint16_t sectorsz =512; // sector size, bytes
-    struct SECTOR {                      // i/o buffer for data
+    struct SECTOR {                      // main i/o buffer for data
     uint32_t sector;
-    uint8_t r1;
-    uint8_t token;
-    uint8_t response;
-    uint8_t b[sectorsz];
-    uint16_t crc;
+    char b[sectorsz];
     bool ok;
     } buf;
     
@@ -106,8 +105,10 @@ class SD_LOW {
     void end(void);
     void on(void);                      // enable card chipselect
     void off(void);                     // disable card
-    bool read(uint32_t sector);         // sector -> buffer
-    bool write(uint32_t sector);        // buffer -> sector
+    bool read(uint32_t sector);         // sector -> main buffer
+    bool write(uint32_t sector);        // main buffer -> sector
+	bool read(uint32_t sector, char *); // read random buffer[sectorsz]
+	bool write(uint32_t sector, char *); // write random buffer[sectorsz]
     void spi_preinit(void);
     void spi_postinit(void);
     R1& cmdR1(const uint8_t *cmd, uint32_t op=0); // send command R1 resp
@@ -127,12 +128,18 @@ class SD_LOW {
       uint32_t start;
       uint32_t end;
       uint32_t r,w; // ring pointers
-      uint8_t buf[sectorsz]; // buffer separated from main SD_LOW::buf
-      uint16_t ptr;
+      char rbuf[sectorsz]; // reading buffer separated from main SD_LOW::buf
+      char wbuf[sectorsz]; // writing buffer separated from main SD_LOW::buf
+      uint16_t rptr,wptr;
+      char wpadchar;		// padding symbol to end of unfilled sector
     } ring;
 
-    void ring_clean(void);
-    void ring_append(uint8_t *,uint8_t);
+    void ring_reset(void);
+    void ring_append(char *,int);	// append data to ring buffer
+    void ring_flush(void);			// flush ring to SD
+    void ring_raiseptr(uint32_t&);	// raise pointer ringically
+    bool ring_hasData(void);		// return flag data ready in SD buffer
+    char ring_poll();				// poll next char from SD ring
 };
 
 #endif // _H_SDLOW_

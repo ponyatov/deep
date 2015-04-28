@@ -1,29 +1,28 @@
+#define RING_IMG_SIZE (10*1024L)
+
+const char IMG[]= "F:\\ring.img";
+
 #include <iostream>
+using namespace std;
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
 
-#define M1 (1024L*1024)
-#define G1 (1M*1024)
-
-using namespace std;
-
-const char IMG[]= "F:\\ring.img";
+#include <emCpp/const.h>
 
 char buf[512];
 
 int main() {
-	cout << endl << endl;
-	cout << "Image: " << IMG << endl;
+	memset(buf,0x0A,sizeof(buf));
+	cout << endl << "Image: " << IMG << endl;
 	FILE *img=fopen(IMG,"wb"); assert(img!=NULL);
-	for (unsigned int i=0;i<M1/512;i++) {
-		cout << i << " ";
-		memset(buf,(i+1)%0x100,sizeof(buf));
+	for (unsigned int i=0;i<RING_IMG_SIZE/512;i++) {
+		if (i%100==0) cout << ". ";
 		fwrite(buf,sizeof(buf),1,img);
 	}
+	cout << endl;
 	fclose(img);
-	cout << endl << endl;
 	return 0;
 }
 

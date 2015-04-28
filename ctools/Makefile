@@ -1,3 +1,6 @@
+genimage: genimage.exe
+	genimage.exe
+
 compoll: compoll.exe
 	compoll.exe
 
