@@ -1,4 +1,4 @@
 :ag
-make
+make gen
 pause
 goto ag
