@@ -71,8 +71,17 @@ UartBuffer extra(UartCallBack,'x',88,Serial3,4800);
 unsigned int tick_count = 0;
 void tick(void) { // every sec
 	tick_count++;
-	if (tick_count % (1 * 10) == 0) // 10 min
-		SDx.ring_rwptr_save();
+	if (tick_count % (1 * 10) == 0) { // 10 min
+//		SDx.ring_rwptr_save();
+		Serial.println();
+		Serial.print("tick "); Serial.println(tick_count);
+		Serial.println();
+		Serial.println("r/w=");
+		Serial.println(SDx.ring.r);
+		Serial.println(SDx.ring.w);
+		Serial.println();
+		Serial.println();
+	}
 }
 
 void setup(void) {
@@ -83,7 +92,8 @@ void setup(void) {
 
 	// start SD (including ring reload from EEPROM)
 	if (!SDx.begin()) halt();
-	SDx.ring_reset();
+	SDx.ring_coldstart();
+//	SDx.ring_reset();
 	
 	// start SD ring backuping timer
 	Timer1.initialize(1000000L); // default 1 sec

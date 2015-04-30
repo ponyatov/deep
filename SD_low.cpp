@@ -257,8 +257,10 @@ char *SD_LOW::ring_poll(void) {
 	return ring.rbuf;
 }
 
-EEMEM uint32_t SD_LOW::er = SD_RING_IMG_FIRST_HW_SECTOR;
-EEMEM uint32_t SD_LOW::ew = SD_RING_IMG_FIRST_HW_SECTOR;
+//EEMEM
+uint32_t SD_LOW::er = SD_RING_IMG_FIRST_HW_SECTOR;
+//EEMEM
+uint32_t SD_LOW::ew = SD_RING_IMG_FIRST_HW_SECTOR;
 
 void SD_LOW::ring_rwptr_load(void) {
 	ring.r = er;
