@@ -10,6 +10,16 @@ SD_LOW SDx;
 
 #include "UartBuffer.h"
 
+void halt(void) {
+	Serial.flush();
+	// shutdown
+	set_sleep_mode(SLEEP_MODE_PWR_DOWN);
+	//sleep_bod_disable();
+	sleep_enable();
+	cli();
+	for (;;) sleep_mode();
+}
+
 void SendBT(char channel, char *buf, int sz) {
 	Serial.print(channel); Serial.print(':');
 	for (int i=0;i<sz;i++) Serial.print(buf[i]); // also prints CR
@@ -72,15 +82,7 @@ void setup(void) {
 	SDx.ring_reset();
 
 	// start SD
-	if (!SDx.begin()) {
-		Serial.flush();
-		// shutdown
-		set_sleep_mode(SLEEP_MODE_PWR_DOWN);
-		//sleep_bod_disable();
-		sleep_enable();
-		cli();
-		for (;;) sleep_mode();
-	} // SD.begin ok
+	if (!SDx.begin()) halt();
 }
 
 void SD_poll(void) {
