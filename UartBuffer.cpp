@@ -20,12 +20,14 @@ extern void halt(void);
 #include <USBAPI.h>
 
 void UartBuffer::poll(void) {
+	/*
 	if (uart.available() >= SERIAL_RX_BUFFER_SIZE - 0x10) {
 		Serial.println();
 		Serial.print(uart);
 		Serial.println(" overflow\n");
 		halt();
 	}
+	*/
 	if (uart.available()) {
 		buf[ptr++] = uart.read();
 		if (buf[ptr - 1] == 0x0D)

@@ -1,6 +1,3 @@
-#define RING_IMG_FIRST_HW_SECTOR 7600
-#define RING_IMG_SIZE (10*1024L)
-#define PIN_BT_READY 7
 
 #include <avr/sleep.h>
 
@@ -8,7 +5,11 @@
 #include "SD_low.h"
 SD_LOW SDx;
 
+#include "config.h"
+
 #include "UartBuffer.h"
+
+#include "TimerOne.h"
 
 void halt(void) {
 	Serial.flush();
@@ -21,8 +22,11 @@ void halt(void) {
 }
 
 void SendBT(char channel, char *buf, int sz) {
-	Serial.print(channel); Serial.print(':');
-	for (int i=0;i<sz;i++) Serial.print(buf[i]); // also prints CR
+	if (channel != 'h') {
+		Serial.print(channel); Serial.print(':');
+	}
+	for (int i = 0; i < sz; i++)
+		Serial.print(buf[i]); // also prints CR
 }
 
 void SendSD(char channel, char *buf, int sz) {
@@ -31,7 +35,7 @@ void SendSD(char channel, char *buf, int sz) {
 	SDx.ring_append(buf,sz);
 }
 
-bool BT_FLAG_PREV,BT_FLAG_NOW=true;
+bool BT_FLAG_PREV, BT_FLAG_NOW = true;
 
 void BT_poll(void) {
 	BT_FLAG_PREV = BT_FLAG_NOW;
@@ -44,7 +48,7 @@ void BT_poll(void) {
 		}
 	} else {
 		// on swith off BT
-		if ( BT_FLAG_PREV) {
+		if (BT_FLAG_PREV) {
 			Serial.println("offline");
 		}
 	}
@@ -64,25 +68,26 @@ UartBuffer   gps(UartCallBack,'g',88,Serial1,4800);
 UartBuffer sonar(UartCallBack,'s',88,Serial2,4800);
 UartBuffer extra(UartCallBack,'x',88,Serial3,4800);
 
+unsigned int tick_count = 0;
+void tick(void) { // every sec
+	tick_count++;
+	if (tick_count % (1 * 10) == 0) // 10 min
+		SDx.ring_rwptr_save();
+}
+
 void setup(void) {
 	Serial.begin(115200);
 	
 	// setup pin to BT ready signal with pull-up resistor
 	pinMode(PIN_BT_READY,INPUT); digitalWrite(PIN_BT_READY,HIGH);
 
-	// set SD ring start/end sector 
-	// prepare SD flash card using disk editor 
-	// and ctools/genimage as described in docs
-	SDx.ring.start = RING_IMG_FIRST_HW_SECTOR;
-	// + 1 megabyte for ring buffer
-	SDx.ring.end = SDx.ring.start + RING_IMG_SIZE / SD_LOW::sectorsz;
-	// set sector padding
-	SDx.ring.wpadchar = 0x0A; // EOL
-	// reset logger
-	SDx.ring_reset();
-
-	// start SD
+	// start SD (including ring reload from EEPROM)
 	if (!SDx.begin()) halt();
+	SDx.ring_reset();
+	
+	// start SD ring backuping timer
+	Timer1.initialize(1000000L); // default 1 sec
+	Timer1.attachInterrupt(tick);	// start ticker
 }
 
 void SD_poll(void) {

@@ -11,6 +11,8 @@
 #define Meg1 (1024L*1024)
 #define Gig1 (Meg1*1024L)
 
+#include "config.h"
+
 class SD_LOW {
   public:
 
@@ -124,17 +126,23 @@ class SD_LOW {
     
     // data buffering using circular ring
     
+    static EEMEM uint32_t er,ew; // SD ring pointers in EEPROM
+
     struct {
-      uint32_t start;
-      uint32_t end;
-      uint32_t r,w; // ring pointers
+		uint32_t start = SD_RING_IMG_FIRST_HW_SECTOR;
+		uint32_t end = SD_RING_IMG_FIRST_HW_SECTOR + SD_RING_IMG_SIZE/sectorsz;
+		uint32_t r, w; // working ring pointers
       char rbuf[sectorsz]; // reading buffer separated from main SD_LOW::buf
       char wbuf[sectorsz]; // writing buffer separated from main SD_LOW::buf
       uint16_t wptr;
-      char wpadchar;		// padding symbol to end of unfilled sector
+      char wpadchar=0x0A;	// padding symbol to end of unfilled sector
+      	  	  	  	  	  	  // 0x0A = EOL for text ring, 0x00 for bin ring
     } ring;
 
-    void ring_reset(void);
+    void ring_coldstart(void);		// full ring buffer reset
+    void ring_rwptr_load(void);		// load r/wfrom EEPROM
+    void ring_rwptr_save(void);		// save r/w to EEPROM
+    void ring_reset(void);			// clear ring buffer
     void ring_append(char *,int);	// append data to ring buffer
     void ring_flush(void);			// flush ring to SD
     void ring_raiseptr(uint32_t&);	// raise pointer ringically

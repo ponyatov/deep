@@ -220,11 +220,6 @@ const uint8_t SD_LOW::crc7_table[] = {
 0x0E,0x07,0x1C,0x15,0x2A,0x23,0x38,0x31,0x46,0x4F,0x54,0x5D,0x62,0x6B,0x70,0x79
 };
 
-void SD_LOW::ring_reset(void) {
-	ring.r = ring.start;
-	ring.w = ring.start;
-}
-
 void SD_LOW::ring_flush(void) {
 	// endpadding to end of sector
 	int padding = sectorsz-ring.wptr;
@@ -255,11 +250,32 @@ bool SD_LOW::ring_hasData(void) {
 }
 
 char *SD_LOW::ring_poll(void) {
-	if (ring.r != ring.w) {
+	if (ring_hasData()) {
 		read(ring.r, ring.rbuf);
 		ring_raiseptr(ring.r);
-		return ring.rbuf;
-	} else {
-		return NULL;
 	}
+	return ring.rbuf;
+}
+
+EEMEM uint32_t SD_LOW::er = SD_RING_IMG_FIRST_HW_SECTOR;
+EEMEM uint32_t SD_LOW::ew = SD_RING_IMG_FIRST_HW_SECTOR;
+
+void SD_LOW::ring_rwptr_load(void) {
+	ring.r = er;
+	ring.w = ew;
+}
+
+void SD_LOW::ring_rwptr_save(void) {
+	if (er != ring.r) er = ring.r;
+	if (ew != ring.w) ew = ring.w;
+}
+
+void SD_LOW::ring_coldstart(void) {
+	ring.r = ring.start;
+	ring.w = ring.start;
+	ring_rwptr_save();
+}
+
+void SD_LOW::ring_reset(void) {
+	ring_rwptr_load();
 }
