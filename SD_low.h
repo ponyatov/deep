@@ -24,7 +24,7 @@ class SD_LOW {
     char b[sectorsz];
     bool ok;
     } buf;
-    
+
     static const uint8_t SD_BUSY=0;
     // \ data response codes
     static const uint8_t RESP_MASQ     =0b00011111;
@@ -32,16 +32,16 @@ class SD_LOW {
     static const uint8_t RESP_BADCRC   =0b00001011;
     static const uint8_t RESP_WERR     =0b00001101;
     // /
-    
+
     // \ r/w tokens (data block begin markers)
     static const uint8_t TOKEN_X =0b11111111;
     static const uint8_t TOKEN_RW_SINGLE =0b11111110;
     static const uint8_t TOKEN_MULTI =0b11111100;
     // /
-    
+
     // \ commands set
     static const uint8_t cmdsz =7;       // SD command size, bytes
-    
+
     union CMD {
       uint8_t b[cmdsz];
       struct {
@@ -71,13 +71,13 @@ class SD_LOW {
     static const uint8_t R1_READY =0x00;
     static const uint8_t R1_IDLE  =0x01;
     // /
-    
-    union R1 { 
-      uint8_t b; 
+
+    union R1 {
+      uint8_t b;
     };
     struct R3 { R1 r1; int32_t r3; };
     struct R7 { R1 r1; int32_t r7; };
-    
+
   union OCR {
     uint32_t i;
     struct {
@@ -96,13 +96,13 @@ class SD_LOW {
       char     PNM[40/8];  // Product name
       uint32_t PRV:8;      // Product revision
       uint32_t PSN:32;     // Product serial number
-      uint32_t :4;     
+      uint32_t :4;
       uint32_t MDT:12;     // Manufacturing date
       uint32_t CRC:7;
       uint32_t :1;
-    } __attribute__ ((packed)) f; 
+    } __attribute__ ((packed)) f;
   };
-  
+
     bool begin(void);
     void end(void);
     void on(void);                      // enable card chipselect
@@ -119,13 +119,13 @@ class SD_LOW {
     R1& acmd(const uint8_t *cmd, uint32_t op=0);  // send cmd55 cmdxx R1 resp
     bool error(void);                   // log error
     void dump(void);                    // dump current sector
-    
+
     // CRC section
-    
+
     static const uint8_t crc7_table[];
-    
+
     // data buffering using circular ring
-    
+
     static EEMEM uint32_t er,ew; // SD ring pointers in EEPROM
 
     struct {

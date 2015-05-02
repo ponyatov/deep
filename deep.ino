@@ -69,20 +69,29 @@ UartBuffer sonar(UartCallBack,'s',88,Serial2,4800);
 UartBuffer extra(UartCallBack,'x',88,Serial3,4800);
 
 unsigned int tick_count = 0;
+bool volatile tick_flag = false;
 void tick(void) { // every sec
 	tick_count++;
-	if (tick_count % (1 * 10) == 0) { // 10 min
-//		SDx.ring_rwptr_save();
-		Serial.println();
-		Serial.print("tick "); Serial.println(tick_count);
-		Serial.println();
-		Serial.println("r/w=");
-		Serial.println(SDx.ring.r);
-		Serial.println(SDx.ring.w);
-		Serial.println();
-		Serial.println();
+	if (tick_count % (1 * 10) == 0) // 10 min
+		tick_flag = true;
+}
+void tick_poll(void) {
+	if (tick_flag) {
+		tick_flag=false;
 	}
 }
+
+////		SDx.ring_rwptr_save();
+//		Serial.println();
+//		 Serial.println(tick_count);
+//		Serial.println();
+//		Serial.println("r/w=");
+//		Serial.println(SDx.ring.r);
+//		Serial.println(SDx.ring.w);
+//		Serial.println();
+//		Serial.println();
+//	}
+//}
 
 void setup(void) {
 	Serial.begin(115200);
@@ -97,7 +106,7 @@ void setup(void) {
 	
 	// start SD ring backuping timer
 	Timer1.initialize(1000000L); // default 1 sec
-	Timer1.attachInterrupt(tick);	// start ticker
+//	Timer1.attachInterrupt(tick);	// start ticker
 }
 
 void SD_poll(void) {
@@ -107,6 +116,8 @@ void SD_poll(void) {
 }
 
 void loop(void) {
+	// timer poll
+	tick_poll();
 	// poll BT state
 	BT_poll();
 	// poll History data 

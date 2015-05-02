@@ -275,7 +275,7 @@ void SD_LOW::ring_rwptr_save(void) {
 void SD_LOW::ring_coldstart(void) {
 	ring.r = ring.start;
 	ring.w = ring.start;
-	ring_rwptr_save();
+//	ring_rwptr_save();
 }
 
 void SD_LOW::ring_reset(void) {
