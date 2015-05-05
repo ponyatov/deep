@@ -86,6 +86,8 @@ UartBuffer extra(UartCallBack,'x',NMEA_MAX_MESSAGE_SZ,Serial3,4800);
 ////	}
 ////}
 
+char sss[512];
+
 void setup(void) {
 	Serial.begin(115200);
 	

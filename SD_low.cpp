@@ -145,9 +145,7 @@ bool SD_LOW::write(uint32_t sector, char *buf) {
 		SPI.transfer(0xFF); SPI.transfer(0xFF); 			// dummy crc
 		ok = ((SPI.transfer(0xFF) & RESP_MASQ) == RESP_ACCEPTED); // check resp
 		while (SPI.transfer(0xFF) == SD_BUSY); 				// wait busy state
-	} else { // R1 error, pad 0x100 byte clock
-		for (uint16_t i = 0; i < 0x100; i++) SPI.transfer(0xFF);
-	}
+	} else spi_0x100pad();
 	off();
 	return ok;
 }
@@ -158,25 +156,25 @@ bool SD_LOW::write(uint32_t sector, char *buf) {
 //	return buf.ok;
 //}
 
+void SD_LOW::spi_0x100pad() {
+	for (uint16_t i = 0; i < 0x100; i++)
+		SPI.transfer(0xFF); // clock pad
+}
+
 bool SD_LOW::read(uint32_t sector, char *buf) {
   bool ok=false;
   on();
   if (cmdR1(cmd17, sector * sectorsz).b == R1_READY) {	// read sector cmd17
-	    uint8_t token;
-		for (uint8_t										// wait data token
-				token = TOKEN_X;
-				token == TOKEN_X;
-				token = SPI.transfer(0xFF));
+		uint8_t token = TOKEN_X;
+		while (token == TOKEN_X) token = SPI.transfer(0xFF); // wait data token
 		// read data stream
 		if (token == TOKEN_RW_SINGLE) {
 			for (uint16_t i = 0; i < sectorsz; i++)			// data
 				buf[i] = SPI.transfer(0xFF);
 			SPI.transfer(0xFF); SPI.transfer(0xFF);			// skip crc
 			ok = true;
-		}
-  } else {
-		for (uint16_t i = 0; i < 0x100; i++) SPI.transfer(0xFF); // clock pad
-  }
+		} else spi_0x100pad();
+  } else spi_0x100pad();
   off();
   return ok;
 }
