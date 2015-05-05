@@ -7,9 +7,8 @@ UartBuffer::UartBuffer(
 		HardwareSerial& _uart,
 		int _baud) : uart(_uart) {
 	callback = _callback; channel=_channel;
-	ptr = 0;
-	buf = new char[sz]; bufsz=sz;
-	baud = _baud; uart.begin(baud);
+	buf = new char[sz]; bufsz=sz; ptr = 0;		// alloc & reset buffer
+	baud = _baud; uart.begin(baud);				// init hw serial port
 }
 
 UartBuffer::~UartBuffer() {
@@ -17,24 +16,21 @@ UartBuffer::~UartBuffer() {
 }
 
 extern void halt(void);
-#include <USBAPI.h>
+//#include <USBAPI.h>
 
 void UartBuffer::poll(void) {
-	/*
-	if (uart.available() >= SERIAL_RX_BUFFER_SIZE - 0x10) {
+	if (uart.available() >= SERIAL_RX_BUFFER_SIZE/2) {
 		Serial.println();
 		Serial.print(uart);
 		Serial.println(" overflow\n");
 		halt();
 	}
-	*/
 	if (uart.available()) {
 		buf[ptr++] = uart.read();
-		if (buf[ptr - 1] == 0x0D)
-			ptr--; // ignore win/dos \r char
+		if (buf[ptr - 1] == 0x0D) ptr--; // ignore win/dos \r char
 		if (buf[ptr - 1] == 0x0A | ptr >= bufsz) { // EOL | buf full
-			callback(channel, buf, ptr);
-			ptr = 0;
+			callback(channel, buf, ptr);	// callback function
+			ptr = 0;						// reset buffer
 		}
 	}
 }

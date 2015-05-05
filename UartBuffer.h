@@ -4,11 +4,10 @@
 #include <Arduino.h>
 
 class UartBuffer {
-	int ptr;
-	char *buf; int bufsz;
-	HardwareSerial &uart; int baud;
-	void (*callback)(char channel,char *,int sz);
-	char channel;
+	char *buf; uint8_t bufsz; uint8_t ptr;			// buf collecting eoled line
+	HardwareSerial &uart; uint16_t baud;			// serial port config
+	void (*callback)(char channel,char *,int sz);	// will be called on eol/buf
+	char channel;									// channel id
 public:
 	UartBuffer(
 			void (*_callback)(char channel,char *,int),
@@ -21,7 +20,7 @@ public:
 	// uart: Serial, Serial1, Serial2,..
 	// baud: uart bps 4800,9600,..
 	~UartBuffer();
-	void poll(void);	// process
+	void poll(void);		// process
 };
 
 #endif // _H_UartBuffer

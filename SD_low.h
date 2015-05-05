@@ -8,36 +8,36 @@
 #include <Arduino.h>
 #include <SPI.h>
 
-#define Meg1 (1024L*1024)
-#define Gig1 (Meg1*1024L)
+//#define Meg1 (1024L*1024)
+//#define Gig1 (Meg1*1024L)
 
 #include "config.h"
 
 class SD_LOW {
   public:
-
-	SD_LOW();
+//
+//	SD_LOW();
 
     static const uint16_t sectorsz =512; // sector size, bytes
-    struct SECTOR {                      // main i/o buffer for data
-    uint32_t sector;
-    char b[sectorsz];
-    bool ok;
-    } buf;
-
-    static const uint8_t SD_BUSY=0;
-    // \ data response codes
-    static const uint8_t RESP_MASQ     =0b00011111;
-    static const uint8_t RESP_ACCEPTED =0b00000101;
-    static const uint8_t RESP_BADCRC   =0b00001011;
-    static const uint8_t RESP_WERR     =0b00001101;
-    // /
-
-    // \ r/w tokens (data block begin markers)
-    static const uint8_t TOKEN_X =0b11111111;
-    static const uint8_t TOKEN_RW_SINGLE =0b11111110;
-    static const uint8_t TOKEN_MULTI =0b11111100;
-    // /
+//    struct SECTOR {                      // main i/o buffer for data
+//    uint32_t sector;
+//    char b[sectorsz];
+//    bool ok;
+//    } buf;
+//
+//    static const uint8_t SD_BUSY=0;
+//    // \ data response codes
+//    static const uint8_t RESP_MASQ     =0b00011111;
+//    static const uint8_t RESP_ACCEPTED =0b00000101;
+//    static const uint8_t RESP_BADCRC   =0b00001011;
+//    static const uint8_t RESP_WERR     =0b00001101;
+//    // /
+//
+//    // \ r/w tokens (data block begin markers)
+//    static const uint8_t TOKEN_X =0b11111111;
+//    static const uint8_t TOKEN_RW_SINGLE =0b11111110;
+//    static const uint8_t TOKEN_MULTI =0b11111100;
+//    // /
 
     // \ commands set
     static const uint8_t cmdsz =7;       // SD command size, bytes
@@ -67,6 +67,7 @@ class SD_LOW {
       cmd55[],
       cmd58[];
     // /
+
     // \ R1 return status
     static const uint8_t R1_READY =0x00;
     static const uint8_t R1_IDLE  =0x01;
@@ -88,29 +89,29 @@ class SD_LOW {
     } __attribute__ ((packed)) b;
   };
 
-  union CID {
-    uint8_t b[128/8];
-    struct {
-      uint32_t MID:8;      // Manufacturer ID
-      uint32_t OID:16;     // OEM/Application ID
-      char     PNM[40/8];  // Product name
-      uint32_t PRV:8;      // Product revision
-      uint32_t PSN:32;     // Product serial number
-      uint32_t :4;
-      uint32_t MDT:12;     // Manufacturing date
-      uint32_t CRC:7;
-      uint32_t :1;
-    } __attribute__ ((packed)) f;
-  };
+//  union CID {
+//    uint8_t b[128/8];
+//    struct {
+//      uint32_t MID:8;      // Manufacturer ID
+//      uint32_t OID:16;     // OEM/Application ID
+//      char     PNM[40/8];  // Product name
+//      uint32_t PRV:8;      // Product revision
+//      uint32_t PSN:32;     // Product serial number
+//      uint32_t :4;
+//      uint32_t MDT:12;     // Manufacturing date
+//      uint32_t CRC:7;
+//      uint32_t :1;
+//    } __attribute__ ((packed)) f;
+//  };
 
     bool begin(void);
-    void end(void);
+//    void end(void);
     void on(void);                      // enable card chipselect
     void off(void);                     // disable card
-    bool read(uint32_t sector);         // sector -> main buffer
-    bool write(uint32_t sector);        // main buffer -> sector
-	bool read(uint32_t sector, char *); // read random buffer[sectorsz]
-	bool write(uint32_t sector, char *); // write random buffer[sectorsz]
+//    bool read(uint32_t sector);         // sector -> main buffer
+//    bool write(uint32_t sector);        // main buffer -> sector
+//	bool read(uint32_t sector, char *); // read random buffer[sectorsz]
+//	bool write(uint32_t sector, char *); // write random buffer[sectorsz]
     void spi_preinit(void);
     void spi_postinit(void);
     R1& cmdR1(const uint8_t *cmd, uint32_t op=0); // send command R1 resp
@@ -118,36 +119,36 @@ class SD_LOW {
     R7& cmdR7(const uint8_t *cmd, uint32_t op=0); // send command R7 resp
     R1& acmd(const uint8_t *cmd, uint32_t op=0);  // send cmd55 cmdxx R1 resp
     bool error(void);                   // log error
-    void dump(void);                    // dump current sector
-
-    // CRC section
-
-    static const uint8_t crc7_table[];
-
-    // data buffering using circular ring
-
-    static EEMEM uint32_t er,ew; // SD ring pointers in EEPROM
+//    void dump(void);                    // dump current sector
+//
+//    // CRC section
+//
+//    static const uint8_t crc7_table[];
+//
+//    // data buffering using circular ring
+//
+//    static EEMEM uint32_t er,ew; // SD ring pointers in EEPROM
 
     struct {
 		uint32_t start = SD_RING_IMG_FIRST_HW_SECTOR;
 		uint32_t end = SD_RING_IMG_FIRST_HW_SECTOR + SD_RING_IMG_SIZE/sectorsz;
 		uint32_t r, w; // working ring pointers
-      char rbuf[sectorsz]; // reading buffer separated from main SD_LOW::buf
-      char wbuf[sectorsz]; // writing buffer separated from main SD_LOW::buf
-      uint16_t wptr;
-      char wpadchar=0x0A;	// padding symbol to end of unfilled sector
-      	  	  	  	  	  	  // 0x0A = EOL for text ring, 0x00 for bin ring
+//      char rbuf[sectorsz]; // reading buffer separated from main SD_LOW::buf
+//      char wbuf[sectorsz]; // writing buffer separated from main SD_LOW::buf
+//      uint16_t wptr;
+//      char wpadchar=0x0A;	// padding symbol to end of unfilled sector
+//      	  	  	  	  	  	  // 0x0A = EOL for text ring, 0x00 for bin ring
     } ring;
 
     void ring_coldstart(void);		// full ring buffer reset
-    void ring_rwptr_load(void);		// load r/wfrom EEPROM
-    void ring_rwptr_save(void);		// save r/w to EEPROM
-    void ring_reset(void);			// clear ring buffer
-    void ring_append(char *,int);	// append data to ring buffer
-    void ring_flush(void);			// flush ring to SD
-    void ring_raiseptr(uint32_t&);	// raise pointer ringically
-    bool ring_hasData(void);		// return flag data ready in SD buffer
-    char *ring_poll(void);			// poll next sector from SD ring
+//    void ring_rwptr_load(void);		// load r/wfrom EEPROM
+//    void ring_rwptr_save(void);		// save r/w to EEPROM
+//    void ring_reset(void);			// clear ring buffer
+//    void ring_append(char *,int);	// append data to ring buffer
+//    void ring_flush(void);			// flush ring to SD
+//    void ring_raiseptr(uint32_t&);	// raise pointer ringically
+//    bool ring_hasData(void);		// return flag data ready in SD buffer
+//    char *ring_poll(void);			// poll next sector from SD ring
 };
 
 #endif // _H_SDLOW_
