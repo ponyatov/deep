@@ -11,4 +11,10 @@
 
 #define PIN_BT_READY 7
 
+#define NMEA_MAX_MESSAGE_SZ 88
+
+extern void halt(void);
+
+#define EOL 0x0A
+
 #endif // _H_CONFIG

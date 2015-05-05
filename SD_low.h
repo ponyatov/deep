@@ -5,6 +5,7 @@
 #ifndef _H_SDLOW_
 #define _H_SDLOW_
 
+#include "config.h"
 #include <Arduino.h>
 #include <SPI.h>
 
@@ -15,8 +16,8 @@
 
 class SD_LOW {
   public:
-//
-//	SD_LOW();
+
+	SD_LOW(char wpadchar=EOL);
 
     static const uint16_t sectorsz =512; // sector size, bytes
 //    struct SECTOR {                      // main i/o buffer for data
@@ -110,8 +111,8 @@ class SD_LOW {
     void off(void);                     // disable card
 //    bool read(uint32_t sector);         // sector -> main buffer
 //    bool write(uint32_t sector);        // main buffer -> sector
-//	bool read(uint32_t sector, char *); // read random buffer[sectorsz]
-//	bool write(uint32_t sector, char *); // write random buffer[sectorsz]
+	bool  read(uint32_t sector, char *); // read  random buffer[sectorsz]
+	bool write(uint32_t sector, char *); // write random buffer[sectorsz]
     void spi_preinit(void);
     void spi_postinit(void);
     R1& cmdR1(const uint8_t *cmd, uint32_t op=0); // send command R1 resp
@@ -120,13 +121,9 @@ class SD_LOW {
     R1& acmd(const uint8_t *cmd, uint32_t op=0);  // send cmd55 cmdxx R1 resp
     bool error(void);                   // log error
 //    void dump(void);                    // dump current sector
-//
-//    // CRC section
-//
-//    static const uint8_t crc7_table[];
-//
-//    // data buffering using circular ring
-//
+
+    // data buffering using circular ring
+
 //    static EEMEM uint32_t er,ew; // SD ring pointers in EEPROM
 
     struct {
@@ -134,20 +131,21 @@ class SD_LOW {
 		uint32_t end = SD_RING_IMG_FIRST_HW_SECTOR + SD_RING_IMG_SIZE/sectorsz;
 		uint32_t r, w; // working ring pointers
 //      char rbuf[sectorsz]; // reading buffer separated from main SD_LOW::buf
-//      char wbuf[sectorsz]; // writing buffer separated from main SD_LOW::buf
-//      uint16_t wptr;
-//      char wpadchar=0x0A;	// padding symbol to end of unfilled sector
-//      	  	  	  	  	  	  // 0x0A = EOL for text ring, 0x00 for bin ring
+      char wbuf[sectorsz]; // writing buffer separated from main SD_LOW::buf
+      uint16_t wptr;
+      char wpadchar=EOL;	// padding symbol to end of unfilled sector
+   	  	  	  	  	  	 	// 0x0A = EOL for text ring, 0x00 for bin ring
     } ring;
 
     void ring_coldstart(void);		// full ring buffer reset
 //    void ring_rwptr_load(void);		// load r/wfrom EEPROM
 //    void ring_rwptr_save(void);		// save r/w to EEPROM
 //    void ring_reset(void);			// clear ring buffer
-//    void ring_append(char *,int);	// append data to ring buffer
-//    void ring_flush(void);			// flush ring to SD
-//    void ring_raiseptr(uint32_t&);	// raise pointer ringically
-//    bool ring_hasData(void);		// return flag data ready in SD buffer
+    void ring_append(char *,uint16_t);	// append data to ring buffer
+    void ring_flush(void);			// flush ring to SD
+    void ring_incptr(uint32_t&);	// increment pointer ringically
+    void ring_decptr(uint32_t&);	// decrement pointer ringically
+    bool ring_hasData(void);		// return flag data ready in SD buffer
 //    char *ring_poll(void);			// poll next sector from SD ring
 };
 

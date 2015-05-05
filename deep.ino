@@ -2,14 +2,14 @@
 
 #include <SPI.h>
 #include "SD_low.h"
-SD_LOW SDx;
+SD_LOW SDx(0x0A);	// SD ring with EOL padding
 
 #include "UartBuffer.h"
 #include "TimerOne.h"
 
 #include <avr/sleep.h>
-void halt(void) {	
-	Serial.flush();
+void halt(void) {
+	Serial.println(); Serial.println("halt"); Serial.flush();
 	// shutdown
 	set_sleep_mode(SLEEP_MODE_PWR_DOWN);
 	//sleep_bod_disable();
@@ -19,18 +19,15 @@ void halt(void) {
 }
 
 void SendBT(char channel, char *buf, int sz) {
-//	if (channel != 'h') {
-//		Serial.print(channel); Serial.print(':');
-//	}
 	Serial.print(channel); Serial.print(':');
 	for (int i = 0; i < sz; i++)
-		Serial.print(buf[i]); // also prints CR
+		Serial.print(buf[i]); // also prints CRs
 }
 
 void SendSD(char channel, char *buf, int sz) {
-//	SDx.ring_append(&channel,1);
-//	char colon=':'; SDx.ring_append(&colon,1);
-//	SDx.ring_append(buf,sz);
+	SDx.ring_append(&channel,1);
+	char colon=':'; SDx.ring_append(&colon,1);
+	SDx.ring_append(buf,sz);
 }
 
 bool BT_FLAG_PREV, BT_FLAG_NOW = true;
@@ -40,7 +37,7 @@ void BT_poll(void) {
 	BT_FLAG_NOW = digitalRead(PIN_BT_READY);
 	if ( BT_FLAG_NOW & !BT_FLAG_PREV) {
 		Serial.println(); Serial.println("BT ready");
-//		SDx.ring_flush();
+		SDx.ring_flush();
 	}
 	if (!BT_FLAG_NOW &  BT_FLAG_PREV) {
 		Serial.println(); Serial.println("offline");
@@ -57,9 +54,9 @@ void UartCallBack(char channel, char *buf, int sz) {
 	}
 }
 
-UartBuffer   gps(UartCallBack,'g',88,Serial1,4800);
-UartBuffer sonar(UartCallBack,'s',88,Serial2,4800);
-UartBuffer extra(UartCallBack,'x',88,Serial3,4800);
+UartBuffer   gps(UartCallBack,'g',NMEA_MAX_MESSAGE_SZ,Serial1,4800);
+UartBuffer sonar(UartCallBack,'s',NMEA_MAX_MESSAGE_SZ,Serial2,4800);
+UartBuffer extra(UartCallBack,'x',NMEA_MAX_MESSAGE_SZ,Serial3,4800);
 
 //unsigned int tick_count = 0;
 //bool volatile tick_flag = false;
@@ -101,19 +98,21 @@ void setup(void) {
 ////	Timer1.attachInterrupt(tick);	// start ticker
 }
 
-//void SD_poll(void) {
-//	// if has active BT uplink and SD buffered data
-//	if (BT_FLAG_NOW & SDx.ring_hasData())
+void SD_poll(void) {
+	// if has active BT uplink and SD buffered data
+	if (BT_FLAG_NOW & SDx.ring_hasData()) {
+		
+	}
 //		SendBT('h', SDx.ring_poll(), SDx.sectorsz);
-//}
+}
 
 void loop(void) {
 //	// timer poll
 //	tick_poll();
 	// poll BT state
 	BT_poll();
-//	// poll History data 
-//	SD_poll();
+	// poll SD ringed history data 
+	SD_poll();
 	// poll serial channels
 	gps.poll();
 	sonar.poll();

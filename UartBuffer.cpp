@@ -15,9 +15,6 @@ UartBuffer::~UartBuffer() {
 	delete[] buf;
 }
 
-extern void halt(void);
-//#include <USBAPI.h>
-
 void UartBuffer::poll(void) {
 	if (uart.available() >= SERIAL_RX_BUFFER_SIZE/2) {
 		Serial.println();
@@ -28,7 +25,7 @@ void UartBuffer::poll(void) {
 	if (uart.available()) {
 		buf[ptr++] = uart.read();
 		if (buf[ptr - 1] == 0x0D) ptr--; // ignore win/dos \r char
-		if (buf[ptr - 1] == 0x0A | ptr >= bufsz) { // EOL | buf full
+		if (buf[ptr - 1] == EOL | ptr >= bufsz) { // EOL | buf full
 			callback(channel, buf, ptr);	// callback function
 			ptr = 0;						// reset buffer
 		}

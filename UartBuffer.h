@@ -1,6 +1,8 @@
 #ifndef _H_UartBuffer
 #define _H_UartBuffer
 
+#include "config.h"
+
 #include <Arduino.h>
 
 class UartBuffer {
