@@ -61,32 +61,13 @@ UartBuffer   gps(UartCallBack,'g',NMEA_MAX_MESSAGE_SZ,Serial1,4800);
 UartBuffer sonar(UartCallBack,'s',NMEA_MAX_MESSAGE_SZ,Serial2,4800);
 UartBuffer extra(UartCallBack,'x',NMEA_MAX_MESSAGE_SZ,Serial3,4800);
 
-//unsigned int tick_count = 0;
-//bool volatile tick_flag = false;
-//void tick(void) { // every sec
-//	tick_count++;
-//	if (tick_count % (1 * 10) == 0) // 10 min
-//		tick_flag = true;
-//}
-//void tick_poll(void) {
-//	if (tick_flag) {
-//		tick_flag=false;
-//	}
-//}
-//
-//////		SDx.ring_rwptr_save();
-////		Serial.println();
-////		 Serial.println(tick_count);
-////		Serial.println();
-////		Serial.println("r/w=");
-////		Serial.println(SDx.ring.r);
-////		Serial.println(SDx.ring.w);
-////		Serial.println();
-////		Serial.println();
-////	}
-////}
-
-char sss[512];
+uint32_t tick_count = 0;
+bool volatile tick_SD_flag = false;
+void tick(void) { // every sec
+	tick_count++;
+	if (tick_count % (60 * 10) == 0) // 10 min
+		tick_SD_flag = true;
+}
 
 void setup(void) {
 	Serial.begin(115200);
@@ -98,13 +79,14 @@ void setup(void) {
 	if (!SDx.begin()) halt();
 	SDx.ring_coldstart();
 	
-//	// start SD ring backuping timer
-//	Timer1.initialize(1000000L); // default 1 sec
-////	Timer1.attachInterrupt(tick);	// start ticker
+	// start SD ring backuping timer
+	Timer1.initialize(1000000L); // default 1 sec
+	Timer1.attachInterrupt(tick);	// start ticker
 }
 
 char SD_poll_buf[NMEA_MAX_MESSAGE_SZ]; uint16_t SD_poll_ptr=0;
 void SD_poll(void) {
+	if (BT_FLAG_NOW) {
 	// call it if has active BT uplink and SD buffered data
 	if (SDx.ring_hasData()) {
 		SD_poll_buf[SD_poll_ptr++] = SDx.ring_nextchar();
@@ -124,6 +106,11 @@ void SD_poll(void) {
 		}
 		SD_poll_ptr = 0;
 	}
+	}
+	if (tick_SD_flag) {
+		tick_SD_flag = false;
+		SDx.ring_rwptr_save();
+	}
 }
 
 void loop(void) {
@@ -132,7 +119,7 @@ void loop(void) {
 	// poll BT state
 	BT_poll();
 	// poll SD ringed history data 
-	if (BT_FLAG_NOW) SD_poll();
+	SD_poll();
 	// poll serial channels
 	gps.poll();
 	sonar.poll();

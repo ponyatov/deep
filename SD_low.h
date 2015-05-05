@@ -126,7 +126,7 @@ class SD_LOW {
 
     // data buffering using circular ring
 
-//    static EEMEM uint32_t er,ew; // SD ring pointers in EEPROM
+    static EEMEM uint32_t er,ew; // SD ring pointers in EEPROM
 
     struct {
 		uint32_t start = SD_RING_IMG_FIRST_HW_SECTOR;
@@ -141,8 +141,8 @@ class SD_LOW {
     } ring;
 
     void ring_coldstart(void);		// full ring buffer reset
-//    void ring_rwptr_load(void);		// load r/wfrom EEPROM
-//    void ring_rwptr_save(void);		// save r/w to EEPROM
+    void ring_rwptr_load(void);		// load r/wfrom EEPROM
+    void ring_rwptr_save(void);		// save r/w to EEPROM
 //    void ring_reset(void);			// clear ring buffer
     void ring_append(char *,uint16_t);	// append data to ring buffer
     void ring_flush(void);			// flush ring to SD
