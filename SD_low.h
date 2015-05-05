@@ -133,6 +133,7 @@ class SD_LOW {
 		uint32_t end = SD_RING_IMG_FIRST_HW_SECTOR + SD_RING_IMG_SIZE/sectorsz;
 		uint32_t r, w; // working ring pointers
       char rbuf[sectorsz]; // reading buffer separated from main SD_LOW::buf
+      uint16_t rptr;
       char wbuf[sectorsz]; // writing buffer separated from main SD_LOW::buf
       uint16_t wptr;
       char wpadchar=EOL;	// padding symbol to end of unfilled sector
@@ -148,6 +149,8 @@ class SD_LOW {
     void ring_incptr(uint32_t&);	// increment pointer ringically
     bool ring_hasData(void);		// return flag data ready in SD buffer
     char *ring_read(void);			// read next sector from SD ring
+    char ring_nextchar(void);		// get one char from SD ring
+    void ring_nextrsector(void);
 };
 
 #endif // _H_SDLOW_

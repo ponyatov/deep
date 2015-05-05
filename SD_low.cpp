@@ -235,7 +235,17 @@ void SD_LOW::ring_incptr(uint32_t &sector) {
 }
 
 bool SD_LOW::ring_hasData(void) {
-	return ring.r != ring.w;
+	return (ring.r != ring.w) | ring.rptr < sizeof(ring.rbuf);
+}
+
+void SD_LOW::ring_nextrsector(void) {
+	if (!read(ring.r, ring.rbuf)) {
+		Serial.println();
+		Serial.print(ring.r);
+		Serial.println(" sector SD read error");
+		halt();
+	} else
+		ring_incptr(ring.r);
 }
 
 char *SD_LOW::ring_read(void) {
@@ -244,13 +254,23 @@ char *SD_LOW::ring_read(void) {
 		Serial.println("SD ring empty");
 		halt();
 	}
-	if (!read(ring.r,ring.rbuf)) {
-		Serial.println();
-		Serial.print(ring.r);
-		Serial.println(" sector SD read error");
-		halt();
-	} else ring_incptr(ring.r);
+	ring_nextrsector();
 	return ring.rbuf;
+}
+
+char SD_LOW::ring_nextchar(void) {
+	char R;
+	if (ring.rptr < sizeof(ring.rbuf)) {	// has buffered data in rbuf
+		R = ring.rbuf[ring.rptr++];
+	} else {								// rbuf empty
+		if (ring.r != ring.w) {				// has data on SD
+			ring_nextrsector();				// load sector
+			ring.rptr=0;					// reset rptr to data begin
+			R = ring_nextchar();			// recursive ring_nextchar
+		} else
+			R = 0;
+	}
+	return R;
 }
 
 ////EEMEM
@@ -269,8 +289,8 @@ char *SD_LOW::ring_read(void) {
 //}
 
 void SD_LOW::ring_coldstart(void) {
-	ring.r = ring.start;
-	ring.w = ring.start;
+	ring.r = ring.start; ring.w = ring.start;
+	ring.rptr=sizeof(ring.rbuf); ring.wptr=0;
 //	ring_rwptr_save();
 }
 

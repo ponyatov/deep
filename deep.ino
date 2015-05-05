@@ -103,10 +103,27 @@ void setup(void) {
 ////	Timer1.attachInterrupt(tick);	// start ticker
 }
 
+char SD_poll_buf[NMEA_MAX_MESSAGE_SZ]; uint16_t SD_poll_ptr=0;
 void SD_poll(void) {
-	// if has active BT uplink and SD buffered data
-	if (BT_FLAG_NOW & SDx.ring_hasData())
-		SendBT(SDx.ring_read(), SDx.sectorsz);
+	// call it if has active BT uplink and SD buffered data
+	if (SDx.ring_hasData()) {
+		SD_poll_buf[SD_poll_ptr++] = SDx.ring_nextchar();
+	}
+	// check string ready or buffer full
+	if (SD_poll_ptr > sizeof(SD_poll_buf) | SD_poll_buf[SD_poll_ptr - 1] == EOL) {
+		if (SD_poll_ptr > 1) { // non empty string (in padded SD sector)
+			SD_poll_buf[SD_poll_ptr - 1] = 0x00; // set end of string char
+			// replace chan markers
+			if (SD_poll_buf[1]==':')
+			switch (SD_poll_buf[0]) {
+				case 'g': SD_poll_buf[0] = 'G'; break;
+				case 's': SD_poll_buf[0] = 'S'; break;
+				case 'x': SD_poll_buf[0] = 'X'; break;
+			} 
+			Serial.println(SD_poll_buf);		// send to BT
+		}
+		SD_poll_ptr = 0;
+	}
 }
 
 void loop(void) {
@@ -115,7 +132,7 @@ void loop(void) {
 	// poll BT state
 	BT_poll();
 	// poll SD ringed history data 
-	SD_poll();
+	if (BT_FLAG_NOW) SD_poll();
 	// poll serial channels
 	gps.poll();
 	sonar.poll();
