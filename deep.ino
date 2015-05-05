@@ -2,7 +2,7 @@
 
 #include <SPI.h>
 #include "SD_low.h"
-SD_LOW SDx(0x0A);	// SD ring with EOL padding
+SD_LOW SDx(EOL);	// SD ring with EOL padding
 
 #include "UartBuffer.h"
 #include "TimerOne.h"
@@ -18,10 +18,13 @@ void halt(void) {
 	for (;;) sleep_mode();
 }
 
-void SendBT(char channel, char *buf, int sz) {
-	Serial.print(channel); Serial.print(':');
+void SendBT(char *buf, int sz) {
 	for (int i = 0; i < sz; i++)
 		Serial.print(buf[i]); // also prints CRs
+}
+void SendBT(char channel, char *buf, int sz) {
+	Serial.print(channel); Serial.print(':');	// channel id
+	SendBT(buf,sz);
 }
 
 void SendSD(char channel, char *buf, int sz) {
@@ -100,10 +103,8 @@ void setup(void) {
 
 void SD_poll(void) {
 	// if has active BT uplink and SD buffered data
-	if (BT_FLAG_NOW & SDx.ring_hasData()) {
-		
-	}
-//		SendBT('h', SDx.ring_poll(), SDx.sectorsz);
+	if (BT_FLAG_NOW & SDx.ring_hasData())
+		SendBT(SDx.ring_read(), SDx.sectorsz);
 }
 
 void loop(void) {

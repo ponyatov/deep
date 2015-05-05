@@ -137,16 +137,17 @@ void SD_LOW::off(void)  { digitalWrite(SS,HIGH); /* SS# */ }
 bool SD_LOW::write(uint32_t sector, char *buf) {
 	bool ok = false;
 	on();
-//	if (cmdR1(cmd24, sector * sectorsz).b == R1_READY) {	// block_write cmd
-//		SPI.transfer(0xFF);                                      // >=1 byte pad
-//		SPI.transfer(TOKEN_RW_SINGLE);  						// token
-//		for (uint16_t i = 0; i < sectorsz; i++) SPI.transfer(buf[i]);  // data
-//		SPI.transfer(0xFF); SPI.transfer(0xFF); 				// dummy crc
-//		ok = (SPI.transfer(0xFF) & RESP_MASQ) == RESP_ACCEPTED; // check resp
-//		while (SPI.transfer(0xFF) == SD_BUSY); 				// wait busy state
-//	} else { // R1 error, pad 0x100 byte clock
-//		for (uint16_t i = 0; i < 0x100; i++) SPI.transfer(0xFF);
-//	}
+	if (cmdR1(cmd24, sector * sectorsz).b == R1_READY) {	// block_write cmd
+		SPI.transfer(0xFF);                                 // >=1 byte pad
+		SPI.transfer(TOKEN_RW_SINGLE);  					// token
+		for (uint16_t i = 0; i < sectorsz; i++)				// data
+			SPI.transfer(buf[i]);
+		SPI.transfer(0xFF); SPI.transfer(0xFF); 			// dummy crc
+		ok = ((SPI.transfer(0xFF) & RESP_MASQ) == RESP_ACCEPTED); // check resp
+		while (SPI.transfer(0xFF) == SD_BUSY); 				// wait busy state
+	} else { // R1 error, pad 0x100 byte clock
+		for (uint16_t i = 0; i < 0x100; i++) SPI.transfer(0xFF);
+	}
 	off();
 	return ok;
 }
@@ -156,26 +157,30 @@ bool SD_LOW::write(uint32_t sector, char *buf) {
 //	buf.ok = write(sector, buf.b);
 //	return buf.ok;
 //}
-//
-//bool SD_LOW::read(uint32_t sector, char *buf) {
-//  bool ok=false;
-//  on();
-//  if (cmdR1(cmd17,sector*sectorsz).b == R1_READY) {		// read sector cmd17
-//	uint8_t token;										// wait data token
-//	for (token = TOKEN_X; token == TOKEN_X; token = SPI.transfer(0xFF));
-//    // read data stream
-//    if (token == TOKEN_RW_SINGLE) {
-//      for (uint16_t i=0;i<sectorsz;i++) buf[i]=SPI.transfer(0xFF);	// data
-//      SPI.transfer(0xFF); SPI.transfer(0xFF);			// skip crc
-//	  ok = true;
-//    }
-//  } else {
-//	for (uint16_t i = 0; i < 0x100; i++) SPI.transfer(0xFF);
-//  }
-//  off();
-//  return ok;
-//}
-//
+
+bool SD_LOW::read(uint32_t sector, char *buf) {
+  bool ok=false;
+  on();
+  if (cmdR1(cmd17, sector * sectorsz).b == R1_READY) {	// read sector cmd17
+	    uint8_t token;
+		for (uint8_t										// wait data token
+				token = TOKEN_X;
+				token == TOKEN_X;
+				token = SPI.transfer(0xFF));
+		// read data stream
+		if (token == TOKEN_RW_SINGLE) {
+			for (uint16_t i = 0; i < sectorsz; i++)			// data
+				buf[i] = SPI.transfer(0xFF);
+			SPI.transfer(0xFF); SPI.transfer(0xFF);			// skip crc
+			ok = true;
+		}
+  } else {
+		for (uint16_t i = 0; i < 0x100; i++) SPI.transfer(0xFF); // clock pad
+  }
+  off();
+  return ok;
+}
+
 //bool SD_LOW::read(uint32_t sector) {
 //	buf.sector = sector;
 //	buf.ok = read(sector, buf.b);
@@ -235,14 +240,21 @@ bool SD_LOW::ring_hasData(void) {
 	return ring.r != ring.w;
 }
 
-//char *SD_LOW::ring_poll(void) {
-//	if (ring_hasData()) {
-//		read(ring.r, ring.rbuf);
-//		ring_raiseptr(ring.r);
-//	}
-//	return ring.rbuf;
-//}
-//
+char *SD_LOW::ring_read(void) {
+	if (!ring_hasData()) {
+		Serial.println();
+		Serial.println("SD ring empty");
+		halt();
+	}
+	if (!read(ring.r,ring.rbuf)) {
+		Serial.println();
+		Serial.print(ring.r);
+		Serial.println(" sector SD read error");
+		halt();
+	} else ring_incptr(ring.r);
+	return ring.rbuf;
+}
+
 ////EEMEM
 //uint32_t SD_LOW::er = SD_RING_IMG_FIRST_HW_SECTOR;
 ////EEMEM

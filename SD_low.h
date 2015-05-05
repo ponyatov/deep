@@ -26,19 +26,19 @@ class SD_LOW {
 //    bool ok;
 //    } buf;
 //
-//    static const uint8_t SD_BUSY=0;
-//    // \ data response codes
-//    static const uint8_t RESP_MASQ     =0b00011111;
-//    static const uint8_t RESP_ACCEPTED =0b00000101;
-//    static const uint8_t RESP_BADCRC   =0b00001011;
-//    static const uint8_t RESP_WERR     =0b00001101;
-//    // /
-//
-//    // \ r/w tokens (data block begin markers)
-//    static const uint8_t TOKEN_X =0b11111111;
-//    static const uint8_t TOKEN_RW_SINGLE =0b11111110;
+    static const uint8_t SD_BUSY=0;
+    // \ data response codes
+    static const uint8_t RESP_MASQ     =0b00011111;
+    static const uint8_t RESP_ACCEPTED =0b00000101;
+    static const uint8_t RESP_BADCRC   =0b00001011;
+    static const uint8_t RESP_WERR     =0b00001101;
+    // /
+
+    // \ r/w tokens (data block begin markers)
+    static const uint8_t TOKEN_X 		 =0b11111111;
+    static const uint8_t TOKEN_RW_SINGLE =0b11111110;
 //    static const uint8_t TOKEN_MULTI =0b11111100;
-//    // /
+    // /
 
     // \ commands set
     static const uint8_t cmdsz =7;       // SD command size, bytes
@@ -130,7 +130,7 @@ class SD_LOW {
 		uint32_t start = SD_RING_IMG_FIRST_HW_SECTOR;
 		uint32_t end = SD_RING_IMG_FIRST_HW_SECTOR + SD_RING_IMG_SIZE/sectorsz;
 		uint32_t r, w; // working ring pointers
-//      char rbuf[sectorsz]; // reading buffer separated from main SD_LOW::buf
+      char rbuf[sectorsz]; // reading buffer separated from main SD_LOW::buf
       char wbuf[sectorsz]; // writing buffer separated from main SD_LOW::buf
       uint16_t wptr;
       char wpadchar=EOL;	// padding symbol to end of unfilled sector
@@ -144,9 +144,8 @@ class SD_LOW {
     void ring_append(char *,uint16_t);	// append data to ring buffer
     void ring_flush(void);			// flush ring to SD
     void ring_incptr(uint32_t&);	// increment pointer ringically
-    void ring_decptr(uint32_t&);	// decrement pointer ringically
     bool ring_hasData(void);		// return flag data ready in SD buffer
-//    char *ring_poll(void);			// poll next sector from SD ring
+    char *ring_read(void);			// read next sector from SD ring
 };
 
 #endif // _H_SDLOW_
