@@ -9,7 +9,7 @@ SD_LOW SDx(EOL);	// SD ring with EOL padding
 
 #include <avr/sleep.h>
 void halt(void) {
-	Serial.println(); Serial.println("halt"); Serial.flush();
+	Serial.println("d:halt"); Serial.flush();
 	// shutdown
 	set_sleep_mode(SLEEP_MODE_PWR_DOWN);
 	//sleep_bod_disable();
@@ -46,11 +46,11 @@ void BT_poll(void) {
 	BT_FLAG_PREV = BT_FLAG_NOW;
 	BT_FLAG_NOW = digitalRead(PIN_BT_READY);
 	if ( BT_FLAG_NOW & !BT_FLAG_PREV) {
-		Serial.println(); Serial.println("BT ready");
+		Serial.println("d:BT ready");
 		SDx.ring_flush();
 	}
 	if (!BT_FLAG_NOW & BT_FLAG_PREV) {
-		Serial.println(); Serial.println("offline");
+		Serial.println("d:offline");
 	}
 //	if (tick_SD_flag) {
 //		tick_SD_flag = false; SDx.ring_rwptr_save();

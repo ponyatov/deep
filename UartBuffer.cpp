@@ -17,10 +17,7 @@ UartBuffer::~UartBuffer() {
 
 void UartBuffer::poll(void) {
 	if (uart.available() >= SERIAL_RX_BUFFER_SIZE/2) {
-		Serial.println();
-		Serial.print(uart);
-		Serial.println(" overflow\n");
-		halt();
+		Serial.print("d:UART "); Serial.print(uart); Serial.println(" overflow");
 	}
 	if (uart.available()) {
 		buf[ptr++] = uart.read();

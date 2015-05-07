@@ -109,24 +109,22 @@ class SD_LOW {
 
     bool begin(void);
 //    void end(void);
-    void on(void);                      // enable card chipselect
-    void off(void);                     // disable card
-//    bool read(uint32_t sector);         // sector -> main buffer
-//    bool write(uint32_t sector);        // main buffer -> sector
-	bool  read(uint32_t sector, char *); // read  random buffer[sectorsz]
-	bool write(uint32_t sector, char *); // write random buffer[sectorsz]
+    void on(void);                      		// enable card chipselect
+    void off(void);                     		// disable card
+	bool  read(uint32_t sector, char *); 		// read  random buffer[sectorsz]
+	bool write(uint32_t sector, char *); 		// write random buffer[sectorsz]
     void spi_preinit(void);
     void spi_postinit(void);
     R1& cmdR1(const uint8_t *cmd, uint32_t op=0); // send command R1 resp
     R3& cmdR3(const uint8_t *cmd, uint32_t op=0); // send command R3 resp
     R7& cmdR7(const uint8_t *cmd, uint32_t op=0); // send command R7 resp
-    R1& acmd(const uint8_t *cmd, uint32_t op=0);  // send cmd55 cmdxx R1 resp
+    R1&  acmd(const uint8_t *cmd, uint32_t op=0); // send cmd55 cmdxx R1 resp
     bool error(void);                   // log error
 //    void dump(void);                    // dump current sector
 
     // data buffering using circular ring
 
-    static EEMEM uint32_t er,ew; // SD ring pointers in EEPROM
+//    static EEMEM uint32_t er,ew; // SD ring pointers in EEPROM
 
     struct {
 		uint32_t start = SD_RING_IMG_FIRST_HW_SECTOR;

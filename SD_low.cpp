@@ -29,37 +29,39 @@ inline uint32_t bswap32(uint32_t op) {
 }
 
 SD_LOW::R1& SD_LOW::cmdR1(const uint8_t *cmd, uint32_t op) {
-  CMD buf; memcpy(buf.b,cmd,cmdsz); // copy cmd to tmp buffer
-  uint32_t opr = bswap32(op);          // reverse operand bytes
-  if (buf.f.op != opr) buf.f.op=opr;  // update operand
-  SPI.transfer(buf.b,cmdsz); // send command package over spi
-  uint8_t Ncr;
-  SD_LOW::R1 R1;
-  for (
-    Ncr=0 , R1.b =0xFF;
-    Ncr<8 & R1.b==0xFF;
-    Ncr++ , R1.b =SPI.transfer(0xFF)
-    );
-  return R1;
+	CMD buf;
+	memcpy(buf.b, cmd, cmdsz); 				// copy cmd to tmp buffer
+	uint32_t opr = bswap32(op);          	// reverse operand bytes
+	if (buf.f.op != opr)
+		buf.f.op = opr;  					// update operand
+	SPI.transfer(buf.b, cmdsz); 			// send command package over spi
+	uint8_t Ncr;
+	SD_LOW::R1 R1;
+	for (Ncr = 0, R1.b = 0xFF;
+		 Ncr < 8 & R1.b == 0xFF;
+		 Ncr++, R1.b = SPI.transfer(0xFF) );
+	return R1;
 }
 
 SD_LOW::R3& SD_LOW::cmdR3(const uint8_t *cmd, uint32_t op) {
-  SD_LOW::R3 R3; R3.r1 =cmdR1(cmd,op);
-  for (uint8_t i=0;i<sizeof(uint32_t);i++)
-    R3.r3 = (R3.r3 << 8) | SPI.transfer(0xFF);
-  return R3;
+	SD_LOW::R3 R3;
+	R3.r1 = cmdR1(cmd, op);
+	for (uint8_t i = 0; i < sizeof(uint32_t); i++)
+		R3.r3 = (R3.r3 << 8) | SPI.transfer(0xFF);
+	return R3;
 }
 
 SD_LOW::R7& SD_LOW::cmdR7(const uint8_t *cmd, uint32_t op) {
-  SD_LOW::R7 R7; R7.r1 =cmdR1(cmd,op);
-  for (uint8_t i=0;i<sizeof(uint32_t);i++)
-    R7.r7 = (R7.r7 << 8) | SPI.transfer(0xFF);
-  return R7;
+	SD_LOW::R7 R7;
+	R7.r1 = cmdR1(cmd, op);
+	for (uint8_t i = 0; i < sizeof(uint32_t); i++)
+		R7.r7 = (R7.r7 << 8) | SPI.transfer(0xFF);
+	return R7;
 }
 
 SD_LOW::R1& SD_LOW::acmd(const uint8_t *cmd, uint32_t op) {
-  cmdR1(cmd55,op);
-  return cmdR1(cmd);
+	cmdR1(cmd55, op);
+	return cmdR1(cmd);
 }
 
 bool SD_LOW::begin(void) {
@@ -150,12 +152,6 @@ bool SD_LOW::write(uint32_t sector, char *buf) {
 	return ok;
 }
 
-//bool SD_LOW::write(uint32_t sector) {
-//	buf.sector = sector;
-//	buf.ok = write(sector, buf.b);
-//	return buf.ok;
-//}
-
 void SD_LOW::spi_0x100pad() {
 	for (uint16_t i = 0; i < 0x100; i++)
 		SPI.transfer(0xFF); // clock pad
@@ -178,12 +174,6 @@ bool SD_LOW::read(uint32_t sector, char *buf) {
   off();
   return ok;
 }
-
-//bool SD_LOW::read(uint32_t sector) {
-//	buf.sector = sector;
-//	buf.ok = read(sector, buf.b);
-//	return buf.ok;
-//}
 
 void SD_LOW::ring_flush(void) {
 	// endpadding to end of sector
