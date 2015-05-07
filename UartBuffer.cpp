@@ -20,7 +20,7 @@ void UartBuffer::poll(void) {
 		Serial.println();
 		Serial.print(uart);
 		Serial.println(" overflow\n");
-//		halt();
+		halt();
 	}
 	if (uart.available()) {
 		buf[ptr++] = uart.read();

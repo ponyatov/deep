@@ -141,9 +141,9 @@ class SD_LOW {
     } ring;
 
     void ring_coldstart(void);		// full ring buffer reset
+    void ring_reset(void);			// clear ring buffer
     void ring_rwptr_load(void);		// load r/wfrom EEPROM
     void ring_rwptr_save(void);		// save r/w to EEPROM
-//    void ring_reset(void);			// clear ring buffer
     void ring_append(char *,uint16_t);	// append data to ring buffer
     void ring_flush(void);			// flush ring to SD
     void ring_incptr(uint32_t&);	// increment pointer ringically

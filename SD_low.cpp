@@ -184,30 +184,11 @@ bool SD_LOW::read(uint32_t sector, char *buf) {
 //	buf.ok = read(sector, buf.b);
 //	return buf.ok;
 //}
-//
-//void SD_LOW::dump(void) {
-//  Serial.print("\nsector:"); Serial.print(buf.sector);
-//  Serial.print(" ok:"); Serial.print(buf.ok);
-//  for (int i=0;i<sectorsz;i++) {
-//    if (i%0x10==0) {
-//      Serial.print("\n");
-//      Serial.print((i>>12)&0xF,HEX);
-//      Serial.print((i>> 8)&0xF,HEX);
-//      Serial.print((i>> 4)&0xF,HEX);
-//      Serial.print((i    )&0xF,HEX);
-//      Serial.print(": ");
-//    }
-//      Serial.print(" ");
-//      Serial.print((buf.b[i]>> 4)&0xF,HEX);
-//      Serial.print((buf.b[i]    )&0xF,HEX);
-//  }
-//  Serial.print("\n");
-//}
 
 void SD_LOW::ring_flush(void) {
 	// endpadding to end of sector
-	uint16_t padding = sectorsz-ring.wptr;
-	memset(&ring.wbuf[ring.wptr],ring.wpadchar,padding);
+	uint16_t padding = sectorsz - ring.wptr;
+	memset(&ring.wbuf[ring.wptr], ring.wpadchar, padding);
 	// write data
 	if (write(ring.w, ring.wbuf)) {
 		ring_incptr(ring.w);
@@ -268,23 +249,22 @@ char SD_LOW::ring_nextchar(void) {
 			ring.rptr=0;					// reset rptr to data begin
 			R = ring_nextchar();			// recursive ring_nextchar
 		} else
-			R = 0;
+			R = ring.wpadchar;
 	}
 	return R;
 }
 
-EEMEM uint32_t SD_LOW::er = SD_RING_IMG_FIRST_HW_SECTOR;
-EEMEM uint32_t SD_LOW::ew = SD_RING_IMG_FIRST_HW_SECTOR;
+//EEMEM uint32_t SD_LOW::er = SD_RING_IMG_FIRST_HW_SECTOR;
+//EEMEM uint32_t SD_LOW::ew = SD_RING_IMG_FIRST_HW_SECTOR;
 
-void SD_LOW::ring_rwptr_load(void) {
-	ring.r = er;
-	ring.w = ew;
-}
+//void SD_LOW::ring_rwptr_load(void) {
+//	ring.r = er; ring.w = ew;
+//}
 
-void SD_LOW::ring_rwptr_save(void) {
-	if (er != ring.r) er = ring.r;
-	if (ew != ring.w) ew = ring.w;
-}
+//void SD_LOW::ring_rwptr_save(void) {
+//	if (er != ring.r) er = ring.r;
+//	if (ew != ring.w) ew = ring.w;
+//}
 
 void SD_LOW::ring_coldstart(void) {
 	ring.r = ring.start; ring.w = ring.start;
@@ -292,6 +272,6 @@ void SD_LOW::ring_coldstart(void) {
 //	ring_rwptr_save();
 }
 
-//void SD_LOW::ring_reset(void) {
+void SD_LOW::ring_reset(void) {
 //	ring_rwptr_load();
-//}
+}
