@@ -124,7 +124,7 @@ class SD_LOW {
 
     // data buffering using circular ring
 
-//    static EEMEM uint32_t er,ew; // SD ring pointers in EEPROM
+    static EEMEM uint32_t er,ew; // SD ring pointers in EEPROM
 
     struct {
 		uint32_t start = SD_RING_IMG_FIRST_HW_SECTOR;
