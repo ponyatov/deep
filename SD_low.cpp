@@ -65,7 +65,7 @@ SD_LOW::R1& SD_LOW::acmd(const uint8_t *cmd, uint32_t op) {
 }
 
 bool SD_LOW::begin(void) {
-  Serial.print("SD/lowlevel init: ");
+  Serial.print("d: SD/lowlevel init: ");
   // init using grabbed track from ListFiles.ino
   // init procedure corresponds to @ http://elm-chan.org/docs/mmc/gx1/sdinit.png
   spi_preinit();
