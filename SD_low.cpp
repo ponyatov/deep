@@ -244,24 +244,39 @@ char SD_LOW::ring_nextchar(void) {
 	return R;
 }
 
+#include "EEPROM.h"
+
 EEMEM uint32_t SD_LOW::er = SD_RING_IMG_FIRST_HW_SECTOR;
 EEMEM uint32_t SD_LOW::ew = SD_RING_IMG_FIRST_HW_SECTOR;
 
-//void SD_LOW::ring_rwptr_load(void) {
-//	ring.r = er; ring.w = ew;
-//}
+void SD_LOW::ring_rwptr_load(void) {
+	Serial.print("d: SD ring r/w load");
+	ring.r = ee_getuint32((EEPTR) &er);
+	ring.w = ee_getuint32((EEPTR) &ew);
+	Serial.print(" r= "); Serial.print(ring.r);
+	Serial.print(" w= "); Serial.println(ring.w);
+	Serial.flush();
+}
 
-//void SD_LOW::ring_rwptr_save(void) {
-//	if (er != ring.r) er = ring.r;
-//	if (ew != ring.w) ew = ring.w;
-//}
+void SD_LOW::ring_rwptr_save(void) {
+	Serial.print("d: SD ring r/w save");
+	Serial.print(" r= "); Serial.print(ring.r);
+	Serial.print(" w= "); Serial.println(ring.w);
+	Serial.flush();
+	//	if (er != ring.r) er = ring.r;
+	if (ee_getuint32((EEPTR) &er) != ring.r)
+		ee_setuint32((EEPTR) &er, ring.r);
+	//	if (ew != ring.w) ew = ring.w;
+	if (ee_getuint32((EEPTR) &ew) != ring.w)
+		ee_setuint32((EEPTR) &ew, ring.w);
+}
 
 void SD_LOW::ring_coldstart(void) {
 	ring.r = ring.start; ring.w = ring.start;
 	ring.rptr=sizeof(ring.rbuf); ring.wptr=0;
-//	ring_rwptr_save();
+	ring_rwptr_save();
 }
 
 void SD_LOW::ring_reset(void) {
-//	ring_rwptr_load();
+	ring_rwptr_load();
 }

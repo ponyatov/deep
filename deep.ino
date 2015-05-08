@@ -79,7 +79,9 @@ void setup(void) {
 
 	// start SD (including ring reload from EEPROM)
 	if (!SDx.begin()) halt();
-	else SDx.ring_coldstart();
+	else 
+		SDx.ring_reset();
+//		SDx.ring_coldstart();
 
 //	// start SD ring backuping timer
 //	Timer1.initialize(1000000L); // default 1 sec

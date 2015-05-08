@@ -14,6 +14,7 @@
 
 #include "config.h"
 
+
 class SD_LOW {
 
 	void spi_0x100pad(void);
