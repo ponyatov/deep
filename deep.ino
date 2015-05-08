@@ -41,7 +41,47 @@ void SendSD(char channel, char *buf, int sz) {
 //		tick_SD_flag = true;
 //}
 
+UartBuffer   gps(UartCallBack,'g',NMEA_MAX_MESSAGE_SZ,Serial1,4800);
+UartBuffer sonar(UartCallBack,'s',NMEA_MAX_MESSAGE_SZ,Serial2,4800);
+UartBuffer extra(UartCallBack,'x',NMEA_MAX_MESSAGE_SZ,Serial3,4800);
+
 bool BT_FLAG_PREV, BT_FLAG_NOW = true;
+
+void BT_cmdline(void) {
+	if (Serial.available()) { // has data in comand line
+		switch (Serial.read()) {
+		case 'c':
+			Serial.println("d: cmd cold start SD ring");
+			SDx.ring_coldstart();
+			break;
+		case 'r':
+			Serial.println("d: cmd reset SD ring");
+			SDx.ring_reset();
+			break;
+		case 's':
+			Serial.println("d: cmd save SD ring ptrs");
+			SDx.ring_rwptr_save();
+			break;
+		case 'l':
+			Serial.println("d: cmd load SD ring ptrs");
+			SDx.ring_rwptr_load();
+			break;
+		case 'G':
+			Serial.println("d: cmd toggle GPS channel");
+			gps.toggle();
+			break;
+		case 'S':
+			Serial.println("d: cmd toggle sonar channel");
+			sonar.toggle();
+			break;
+		case 'X':
+			Serial.println("d: cmd toggle extra channel");
+			extra.toggle();
+			break;
+		}
+	}
+}
+
 void BT_poll(void) {
 	BT_FLAG_PREV = BT_FLAG_NOW;
 	BT_FLAG_NOW = digitalRead(PIN_BT_READY);
@@ -52,6 +92,7 @@ void BT_poll(void) {
 	if (!BT_FLAG_NOW & BT_FLAG_PREV) {
 		Serial.println("d:offline");
 	}
+	BT_cmdline();
 //	if (tick_SD_flag) {
 //		tick_SD_flag = false; SDx.ring_rwptr_save();
 //	}
@@ -66,10 +107,6 @@ void UartCallBack(char channel, char *buf, int sz) {
 		SendSD(channel, buf, sz);
 	}
 }
-
-UartBuffer   gps(UartCallBack,'g',NMEA_MAX_MESSAGE_SZ,Serial1,4800);
-UartBuffer sonar(UartCallBack,'s',NMEA_MAX_MESSAGE_SZ,Serial2,4800);
-UartBuffer extra(UartCallBack,'x',NMEA_MAX_MESSAGE_SZ,Serial3,4800);
 
 void setup(void) {
 	Serial.begin(115200);
@@ -119,7 +156,7 @@ void SD_poll(void) {
 }
 
 void loop(void) {
-	// poll BT state
+	// poll BT state & command line
 	BT_poll();
 	// poll SD ringed history data 
 	SD_poll();
