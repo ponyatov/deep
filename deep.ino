@@ -5,7 +5,7 @@
 SD_LOW SDx(EOL);	// SD ring with EOL padding
 
 #include "UartBuffer.h"
-//#include "TimerOne.h"
+#include "TimerOne.h"
 
 #include <avr/sleep.h>
 void halt(void) {
@@ -33,13 +33,13 @@ void SendSD(char channel, char *buf, int sz) {
 	SDx.ring_append(buf,sz);
 }
 
-//uint32_t tick_count = 0;
-//bool volatile tick_SD_flag = false;
-//void tick(void) { // every sec
-//	tick_count++;
-//	if (tick_count % (1 * 10) == 0) // 10 min 60 * 10
-//		tick_SD_flag = true;
-//}
+uint32_t tick_count = 0;
+bool volatile tick_SD_flag = false;
+void tick(void) { // every sec
+	tick_count++;
+	if (tick_count % (60 * 10) == 0) // every 10 min: 60 * 10
+		tick_SD_flag = true;
+}
 
 UartBuffer   gps(UartCallBack,'g',NMEA_MAX_MESSAGE_SZ,Serial1,4800);
 UartBuffer sonar(UartCallBack,'s',NMEA_MAX_MESSAGE_SZ,Serial2,4800);
@@ -93,9 +93,6 @@ void BT_poll(void) {
 		Serial.println("d:offline");
 	}
 	BT_cmdline();
-//	if (tick_SD_flag) {
-//		tick_SD_flag = false; SDx.ring_rwptr_save();
-//	}
 }
 
 void UartCallBack(char channel, char *buf, int sz) {
@@ -120,9 +117,9 @@ void setup(void) {
 		SDx.ring_reset();
 //		SDx.ring_coldstart();
 
-//	// start SD ring backuping timer
-//	Timer1.initialize(1000000L); // default 1 sec
-////	Timer1.attachInterrupt(tick);	// start ticker
+	// start SD ring backuping timer
+	Timer1.initialize(1000000L); // default 1 sec
+	Timer1.attachInterrupt(tick);	// start ticker
 }
 
 char SD_poll_buf[NMEA_MAX_MESSAGE_SZ]; uint16_t SD_poll_ptr=0;
@@ -149,10 +146,10 @@ void SD_poll(void) {
 		SD_poll_ptr = 0;
 	}
 	} // BT_FLAG
-//	if (tick_SD_flag) {
-//		tick_SD_flag = false;
-//		SDx.ring_rwptr_save();
-//	}
+	if (tick_SD_flag) {				// timered SD ring pointers autosave
+		tick_SD_flag = false;
+		SDx.ring_rwptr_save();
+	}
 }
 
 void loop(void) {
