@@ -32,5 +32,12 @@ void UartBuffer::poll(void) {
 
 bool UartBuffer::toggle(void) {
 	enabled = !enabled;
+	Serial.print("d: channel ");
+	Serial.print(channel);
+	Serial.print(" ");
+	if (enabled)
+		Serial.println("on");
+	else
+		Serial.println("off");
 	return enabled;
 }

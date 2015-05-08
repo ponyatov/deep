@@ -14,13 +14,14 @@
 #define Gb (1024L*Mb)
 // //
 
-#define SD_RING_IMG_SIZE (100*Kb)
+#define SD_RING_IMG_SIZE (1*Gb)
 
 #define PIN_BT_READY 7
 
 #define NMEA_MAX_MESSAGE_SZ 88
 
-extern void halt(void);
+//extern void halt(void);
+extern void reset(void);
 
 #define EOL 0x0A
 

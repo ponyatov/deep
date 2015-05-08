@@ -184,8 +184,10 @@ void SD_LOW::ring_flush(void) {
 		ring_incptr(ring.w);
 	} else {
 		Serial.println();
-		Serial.print(ring.w); Serial.println(" sector SD write error");
-		halt();
+		Serial.print("d: sector ");
+		Serial.print(ring.w);
+		Serial.println(" sector SD write error");
+		reset();
 	};
 	// reset wptr
 	ring.wptr = 0;
@@ -212,9 +214,10 @@ bool SD_LOW::ring_hasData(void) {
 void SD_LOW::ring_nextrsector(void) {
 	if (!read(ring.r, ring.rbuf)) {
 		Serial.println();
+		Serial.print("d: sector ");
 		Serial.print(ring.r);
 		Serial.println(" sector SD read error");
-		halt();
+		reset();
 	} else
 		ring_incptr(ring.r);
 }
@@ -223,7 +226,7 @@ char *SD_LOW::ring_read(void) {
 	if (!ring_hasData()) {
 		Serial.println();
 		Serial.println("SD ring empty");
-		halt();
+		reset();
 	}
 	ring_nextrsector();
 	return ring.rbuf;

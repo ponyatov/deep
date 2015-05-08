@@ -17,6 +17,11 @@ void halt(void) {
 	cli();
 	for (;;) sleep_mode();
 }
+void reset(void) {
+	Serial.println("d:reset"); Serial.flush();
+	// soft reset
+	void (*rs)(void)=0; rs();
+}	
 
 void SendBT(char *buf, int sz) {
 	for (int i = 0; i < sz; i++)
@@ -77,6 +82,9 @@ void BT_cmdline(void) {
 		case 'X':
 			Serial.println("d: cmd toggle extra channel");
 			extra.toggle();
+			break;
+		case 'z':
+			reset();
 			break;
 		}
 	}
