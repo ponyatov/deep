@@ -9,6 +9,7 @@ UartBuffer::UartBuffer(
 	callback = _callback; channel=_channel;
 	buf = new char[sz]; bufsz=sz; ptr = 0;		// alloc & reset buffer
 	baud = _baud; uart.begin(baud);				// init hw serial port
+	enabled=true;								// enable by default
 }
 
 UartBuffer::~UartBuffer() {
@@ -23,8 +24,13 @@ void UartBuffer::poll(void) {
 		buf[ptr++] = uart.read();
 		if (buf[ptr - 1] == 0x0D) ptr--; // ignore win/dos \r char
 		if (buf[ptr - 1] == EOL | ptr >= bufsz) { // EOL | buf full
-			callback(channel, buf, ptr);	// callback function
+			if (enabled) callback(channel, buf, ptr);	// callback function
 			ptr = 0;						// reset buffer
 		}
 	}
+}
+
+bool UartBuffer::toggle(void) {
+	enabled != enabled;
+	return enabled;
 }
