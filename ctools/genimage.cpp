@@ -1,6 +1,8 @@
-#define RING_IMG_SIZE (10*1024L)
+#include "../config.h"
 
-const char IMG[]= "F:\\ring.img";
+#include <string.h>
+
+const char IMG[]= "E:\\ring.img";
 
 #include <iostream>
 using namespace std;
@@ -14,15 +16,15 @@ using namespace std;
 char buf[512];
 
 int main() {
-	memset(buf,0x0A,sizeof(buf));
+	memset(buf, 0x0A, sizeof(buf));
 	cout << endl << "Image: " << IMG << endl;
-	FILE *img=fopen(IMG,"wb"); assert(img!=NULL);
-	for (unsigned int i=0;i<RING_IMG_SIZE/512;i++) {
-		if (i%100==0) cout << ". ";
-		fwrite(buf,sizeof(buf),1,img);
+	FILE *img = fopen(IMG, "wb");
+	assert(img!=NULL);
+	for (unsigned int i = 0; i < SD_RING_IMG_SIZE / 512; i++) {
+		if (i % 100 == 0) cout << ". ";
+		fwrite(buf, sizeof(buf), 1, img);
 	}
 	cout << endl;
 	fclose(img);
 	return 0;
 }
-

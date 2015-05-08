@@ -20,3 +20,4 @@ H	+= ../../emCpp/CRC.h
 %.exe: %.cpp $(MODULES) $(H)
 	g++ -Wall -I../.. -o $@ $< $(MODULES)
 
+genimage.exe: ../config.h

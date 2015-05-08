@@ -7,7 +7,10 @@
 // prepare SD flash card using disk editor
 // and ctools/genimage as described in docs
 #define SD_RING_IMG_FIRST_HW_SECTOR 7600
-#define SD_RING_IMG_SIZE (10*1024L)
+
+#include "../emCpp/const.h"
+
+#define SD_RING_IMG_SIZE (100*Kb)
 
 #define PIN_BT_READY 7
 
