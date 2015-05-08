@@ -8,7 +8,11 @@
 // and ctools/genimage as described in docs
 #define SD_RING_IMG_FIRST_HW_SECTOR 7600
 
-#include "../emCpp/const.h"
+//#include "../emCpp/const.h"
+#define Kb 1024
+#define Mb (1024L*Kb)
+#define Gb (1024L*Mb)
+// //
 
 #define SD_RING_IMG_SIZE (100*Kb)
 
