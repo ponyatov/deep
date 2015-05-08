@@ -9,7 +9,7 @@ UartBuffer::UartBuffer(
 	callback = _callback; channel=_channel;
 	buf = new char[sz]; bufsz=sz; ptr = 0;		// alloc & reset buffer
 	baud = _baud; uart.begin(baud);				// init hw serial port
-	enabled=true;								// enable by default
+	enabled=true;								// enable callback calling
 }
 
 UartBuffer::~UartBuffer() {
@@ -31,6 +31,6 @@ void UartBuffer::poll(void) {
 }
 
 bool UartBuffer::toggle(void) {
-	enabled != enabled;
+	enabled = !enabled;
 	return enabled;
 }
