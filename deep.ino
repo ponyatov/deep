@@ -48,7 +48,7 @@ void tick(void) { // every sec
 
 UartBuffer   gps(UartCallBack,'g',NMEA_MAX_MESSAGE_SZ,Serial1,4800);
 UartBuffer sonar(UartCallBack,'s',NMEA_MAX_MESSAGE_SZ,Serial2,4800);
-UartBuffer extra(UartCallBack,'x',NMEA_MAX_MESSAGE_SZ,Serial3,4800);
+UartBuffer extra(UartCallBack,'x',NMEA_MAX_MESSAGE_SZ,Serial3,115200);//4800);
 
 bool BT_FLAG_PREV, BT_FLAG_NOW = true;
 
