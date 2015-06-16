@@ -14,7 +14,7 @@
 #define Gb (1024L*Mb)
 // //
 
-#define SD_RING_IMG_SIZE (1*Gb)
+#define SD_RING_IMG_SIZE (500*Mb)
 
 #define PIN_BT_READY 7
 
