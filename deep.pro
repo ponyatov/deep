@@ -1,6 +1,6 @@
-update=06.04.2015 16:25:42
+update=16.06.2015 12:53:51
 version=1
-last_client=kicad
+last_client=eeschema
 [cvpcb]
 version=1
 NetIExt=net
@@ -40,16 +40,20 @@ LibName11=valves
 version=1
 [eeschema]
 version=1
-LibDir=../Azbuka/kicad/lib
+LibDir=../H/lib
 [eeschema/libraries]
-LibName1=R
-LibName2=L
-LibName3=C
-LibName4=POWER
-LibName5=DA_POWER
-LibName6=FET
-LibName7=SPICE
-LibName8=VD
-LibName9=SWITCH
-LibName10=MAXIM
+LibName1=C:/w/H/lib/Atmel
+LibName2=C:/w/H/lib/C
+LibName3=C:/w/H/lib/DA_POWER
+LibName4=C:/w/H/lib/FET
+LibName5=C:/w/H/lib/FTDI
+LibName6=C:/w/H/lib/L
+LibName7=C:/w/H/lib/MAXIM
+LibName8=C:/w/H/lib/POWER
+LibName9=C:/w/H/lib/R
+LibName10=C:/w/H/lib/SPICE
+LibName11=C:/w/H/lib/STMicro
+LibName12=C:/w/H/lib/SWITCH
+LibName13=C:/w/H/lib/TVS
+LibName14=C:/w/H/lib/VD
 

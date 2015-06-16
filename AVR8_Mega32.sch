@@ -1,20 +1,23 @@
 EESchema Schematic File Version 2
-LIBS:R
-LIBS:L
+LIBS:Atmel
 LIBS:C
-LIBS:POWER
 LIBS:DA_POWER
 LIBS:FET
-LIBS:SPICE
-LIBS:VD
-LIBS:SWITCH
+LIBS:FTDI
+LIBS:L
 LIBS:MAXIM
-LIBS:deep-cache
+LIBS:POWER
+LIBS:R
+LIBS:SPICE
+LIBS:STMicro
+LIBS:SWITCH
+LIBS:TVS
+LIBS:VD
 EELAYER 25 0
 EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
-Sheet 6 7
+Sheet 6 8
 Title "Процессорный модуль AVR8 (Mega32)"
 Date "1 apr 2015"
 Rev ""
