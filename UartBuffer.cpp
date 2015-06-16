@@ -35,8 +35,8 @@ bool UartBuffer::toggle(void) {
 	DEBUG_UART.print("d: channel ");
 	DEBUG_UART.print(channel);
 	DEBUG_UART.print(" ");
-	if (enabled)
-		DEBUG_UART.println("on");
+	if (enabled) 
+	  DEBUG_UART.println("on");
 	else
 		DEBUG_UART.println("off");
 	return enabled;

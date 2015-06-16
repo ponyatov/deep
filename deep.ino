@@ -48,7 +48,9 @@ void tick(void) { // every sec
 
 UartBuffer   gps(UartCallBack,'g',NMEA_MAX_MESSAGE_SZ,Serial1,4800);
 UartBuffer sonar(UartCallBack,'s',NMEA_MAX_MESSAGE_SZ,Serial2,4800);
-//UartBuffer extra(UartCallBack,'x',NMEA_MAX_MESSAGE_SZ,Serial1,115200);//4800);
+#ifndef DEBUG_UART3
+UartBuffer extra(UartCallBack,'x',NMEA_MAX_MESSAGE_SZ,Serial3,4800);
+#endif
 
 bool BT_FLAG_PREV, BT_FLAG_NOW = true;
 
@@ -79,6 +81,12 @@ void BT_cmdline(void) {
 			DEBUG_UART.println("d: cmd toggle sonar channel");
 			sonar.toggle();
 			break;
+#ifndef DEBUG_UART3
+    case 'X':
+      DEBUG_UART.println("d: cmd toggle extra channel");
+      extra.toggle();
+      break;
+#endif
 		case 'z':
 			reset();
 			break;
@@ -164,4 +172,7 @@ void loop(void) {
 	// poll serial channels
 	gps.poll();
 	sonar.poll();
+ #ifndef DEBUG_UART3
+  extra.poll();
+ #endif
 }
