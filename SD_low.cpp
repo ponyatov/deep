@@ -72,7 +72,7 @@ bool SD_LOW::begin(void) {
   // wait 1+ ms on power on
   delay(1);
   // dummy 74+ clock CS=DI=high
-  digitalWrite(SS,HIGH); digitalWrite(MOSI,HIGH);
+  digitalWrite(SPI_CHIP_SELECT,HIGH); digitalWrite(MOSI,HIGH);
   for (uint8_t i=0;i<80;i++) { digitalWrite(SCK,LOW); digitalWrite(SCK,HIGH); }
   // SPI hw enable
   spi_postinit(); on();
@@ -119,7 +119,7 @@ void SD_LOW::spi_preinit(void) {
   static const uint8_t MOSI = 51;
   static const uint8_t MISO = 50;
   */
-  pinMode(SS,  OUTPUT); // chipselect /inverted/
+  pinMode(SPI_CHIP_SELECT,  OUTPUT); // chipselect /inverted/
   pinMode(SCK, OUTPUT); // clock
   pinMode(MOSI,OUTPUT); // output line
   pinMode(MISO, INPUT); // input line
@@ -133,8 +133,8 @@ void SD_LOW::spi_postinit(void) {
   SPI.setBitOrder(MSBFIRST);
 }
 
-void SD_LOW::on (void)  { digitalWrite(SS, LOW); /* SS# */ }
-void SD_LOW::off(void)  { digitalWrite(SS,HIGH); /* SS# */ }
+void SD_LOW::on (void)  { digitalWrite(SPI_CHIP_SELECT, LOW); /* SS# */ }
+void SD_LOW::off(void)  { digitalWrite(SPI_CHIP_SELECT,HIGH); /* SS# */ }
 
 bool SD_LOW::write(uint32_t sector, char *buf) {
 	bool ok = false;

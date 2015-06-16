@@ -9,6 +9,10 @@
 #include <Arduino.h>
 #include <SPI.h>
 
+#define SPI_CHIP_SELECT SS
+//#define SPI_CHIP_SELECT 53	/* MEGA */	
+//#define SPI_CHIP_SELECT  4
+
 //#define Meg1 (1024L*1024)
 //#define Gig1 (Meg1*1024L)
 
