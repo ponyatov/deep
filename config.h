@@ -25,4 +25,7 @@ extern void reset(void);
 
 #define EOL 0x0A
 
+#define DEBUG_UART Serial3
+#define DEBUG_UART_BAUD 115200
+
 #endif // _H_CONFIG

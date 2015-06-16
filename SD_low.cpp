@@ -65,7 +65,7 @@ SD_LOW::R1& SD_LOW::acmd(const uint8_t *cmd, uint32_t op) {
 }
 
 bool SD_LOW::begin(void) {
-  Serial.print("d: SD/lowlevel init: ");
+  DEBUG_UART.print("d: SD/lowlevel init: ");
   // init using grabbed track from ListFiles.ino
   // init procedure corresponds to @ http://elm-chan.org/docs/mmc/gx1/sdinit.png
   spi_preinit();
@@ -79,28 +79,28 @@ bool SD_LOW::begin(void) {
 //  // cmd12
 //  cmdR1b(cmd12);
   // cmd0
-  Serial.print("CMD0 ");
+  DEBUG_UART.print("CMD0 ");
   if ( cmdR1(cmd0).b != R1_IDLE ) { return error(); } else {
     // cmd8/1aa
-    Serial.print("CMD8/1AA "); // error: SD ver.2 only supported
+    DEBUG_UART.print("CMD8/1AA "); // error: SD ver.2 only supported
     SD_LOW::R7 R7 =cmdR7(cmd8,0x1AA);
     if ( R7.r1.b != R1_IDLE ) { return error(); } else {
       if ( R7.r7 != 0x1AA ) { return error(); } else {
         // acmd41/0x40
-        Serial.print("ACMD41/0x40 ");
+        DEBUG_UART.print("ACMD41/0x40 ");
         while ( acmd(cmd41,0x40000000).b != R1_READY );
         // cmd58
-        Serial.print("CMD58 ");
+        DEBUG_UART.print("CMD58 ");
         SD_LOW::R3 R3=cmdR3(cmd58);
         SD_LOW::OCR OCR; OCR.i=R3.r3;
         if (R3.r1.b != R1_READY) { return error(); } else {
-          if (OCR.b.ccs) { Serial.print("SDv2 block address "); return error(); } else {
+          if (OCR.b.ccs) { DEBUG_UART.print("SDv2 block address "); return error(); } else {
             // cmd16/512
-            Serial.print("CMD16/512 ");
+            DEBUG_UART.print("CMD16/512 ");
             if (cmdR1(cmd16,512).b != R1_READY) { return error(); } else {
               // done
               off();
-              Serial.println("Ok");
+              DEBUG_UART.println("Ok");
               return true;
             } // cmd16/512
           } // cm58/ccs
@@ -110,7 +110,7 @@ bool SD_LOW::begin(void) {
   } // cmd0
 }
 
-bool SD_LOW::error(void) { off(); Serial.println("error"); return false; }
+bool SD_LOW::error(void) { off(); DEBUG_UART.println("error"); return false; }
 
 void SD_LOW::spi_preinit(void) {
   /* mega 1280/2560 @ variants/mega/pins_arduino.h
@@ -183,10 +183,10 @@ void SD_LOW::ring_flush(void) {
 	if (write(ring.w, ring.wbuf)) {
 		ring_incptr(ring.w);
 	} else {
-		Serial.println();
-		Serial.print("d: sector ");
-		Serial.print(ring.w);
-		Serial.println(" sector SD write error");
+		DEBUG_UART.println();
+		DEBUG_UART.print("d: sector ");
+		DEBUG_UART.print(ring.w);
+		DEBUG_UART.println(" sector SD write error");
 		reset();
 	};
 	// reset wptr
@@ -213,10 +213,10 @@ bool SD_LOW::ring_hasData(void) {
 
 void SD_LOW::ring_nextrsector(void) {
 	if (!read(ring.r, ring.rbuf)) {
-		Serial.println();
-		Serial.print("d: sector ");
-		Serial.print(ring.r);
-		Serial.println(" sector SD read error");
+		DEBUG_UART.println();
+		DEBUG_UART.print("d: sector ");
+		DEBUG_UART.print(ring.r);
+		DEBUG_UART.println(" sector SD read error");
 		reset();
 	} else
 		ring_incptr(ring.r);
@@ -224,8 +224,8 @@ void SD_LOW::ring_nextrsector(void) {
 
 char *SD_LOW::ring_read(void) {
 	if (!ring_hasData()) {
-		Serial.println();
-		Serial.println("SD ring empty");
+		DEBUG_UART.println();
+		DEBUG_UART.println("SD ring empty");
 		reset();
 	}
 	ring_nextrsector();
@@ -253,19 +253,19 @@ EEMEM uint32_t SD_LOW::er = SD_RING_IMG_FIRST_HW_SECTOR;
 EEMEM uint32_t SD_LOW::ew = SD_RING_IMG_FIRST_HW_SECTOR;
 
 void SD_LOW::ring_rwptr_load(void) {
-	Serial.print("d: SD ring r/w load");
+	DEBUG_UART.print("d: SD ring r/w load");
 	ring.r = ee_getuint32((EEPTR) &er);
 	ring.w = ee_getuint32((EEPTR) &ew);
-	Serial.print(" r= "); Serial.print(ring.r);
-	Serial.print(" w= "); Serial.println(ring.w);
-	Serial.flush();
+	DEBUG_UART.print(" r= "); DEBUG_UART.print(ring.r);
+	DEBUG_UART.print(" w= "); DEBUG_UART.println(ring.w);
+	DEBUG_UART.flush();
 }
 
 void SD_LOW::ring_rwptr_save(void) {
-	Serial.print("d: SD ring r/w save");
-	Serial.print(" r= "); Serial.print(ring.r);
-	Serial.print(" w= "); Serial.println(ring.w);
-	Serial.flush();
+	DEBUG_UART.print("d: SD ring r/w save");
+	DEBUG_UART.print(" r= "); DEBUG_UART.print(ring.r);
+	DEBUG_UART.print(" w= "); DEBUG_UART.println(ring.w);
+	DEBUG_UART.flush();
 	//	if (er != ring.r) er = ring.r;
 	if (ee_getuint32((EEPTR) &er) != ring.r)
 		ee_setuint32((EEPTR) &er, ring.r);

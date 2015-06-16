@@ -9,7 +9,7 @@ SD_LOW SDx(EOL);	// SD ring with EOL padding
 
 #include <avr/sleep.h>
 void halt(void) {
-	Serial.println("d:halt"); Serial.flush();
+	DEBUG_UART.println("d:halt"); DEBUG_UART.flush();
 	// shutdown
 	set_sleep_mode(SLEEP_MODE_PWR_DOWN);
 	//sleep_bod_disable();
@@ -18,17 +18,17 @@ void halt(void) {
 	for (;;) sleep_mode();
 }
 void reset(void) {
-	Serial.println("d:reset"); Serial.flush();
+	DEBUG_UART.println("d:reset"); DEBUG_UART.flush();
 	// soft reset
 	void (*rs)(void)=0; rs();
 }	
 
 void SendBT(char *buf, int sz) {
 	for (int i = 0; i < sz; i++)
-		Serial.print(buf[i]); // also prints CRs
+		DEBUG_UART.print(buf[i]); // also prints CRs
 }
 void SendBT(char channel, char *buf, int sz) {
-	Serial.print(channel); Serial.print(':');	// channel id
+	DEBUG_UART.print(channel); DEBUG_UART.print(':');	// channel id
 	SendBT(buf,sz);
 }
 
@@ -48,40 +48,36 @@ void tick(void) { // every sec
 
 UartBuffer   gps(UartCallBack,'g',NMEA_MAX_MESSAGE_SZ,Serial1,4800);
 UartBuffer sonar(UartCallBack,'s',NMEA_MAX_MESSAGE_SZ,Serial2,4800);
-UartBuffer extra(UartCallBack,'x',NMEA_MAX_MESSAGE_SZ,Serial3,115200);//4800);
+//UartBuffer extra(UartCallBack,'x',NMEA_MAX_MESSAGE_SZ,Serial1,115200);//4800);
 
 bool BT_FLAG_PREV, BT_FLAG_NOW = true;
 
 void BT_cmdline(void) {
-	if (Serial.available()) { // has data in comand line
-		switch (Serial.read()) {
+	if (DEBUG_UART.available()) { // has data in comand line
+		switch (DEBUG_UART.read()) {
 		case 'c':
-			Serial.println("d: cmd cold start SD ring");
+			DEBUG_UART.println("d: cmd cold start SD ring");
 			SDx.ring_coldstart();
 			break;
 		case 'r':
-			Serial.println("d: cmd reset SD ring");
+			DEBUG_UART.println("d: cmd reset SD ring");
 			SDx.ring_reset();
 			break;
 		case 's':
-			Serial.println("d: cmd save SD ring ptrs");
+			DEBUG_UART.println("d: cmd save SD ring ptrs");
 			SDx.ring_rwptr_save();
 			break;
 		case 'l':
-			Serial.println("d: cmd load SD ring ptrs");
+			DEBUG_UART.println("d: cmd load SD ring ptrs");
 			SDx.ring_rwptr_load();
 			break;
 		case 'G':
-			Serial.println("d: cmd toggle GPS channel");
+			DEBUG_UART.println("d: cmd toggle GPS channel");
 			gps.toggle();
 			break;
 		case 'S':
-			Serial.println("d: cmd toggle sonar channel");
+			DEBUG_UART.println("d: cmd toggle sonar channel");
 			sonar.toggle();
-			break;
-		case 'X':
-			Serial.println("d: cmd toggle extra channel");
-			extra.toggle();
 			break;
 		case 'z':
 			reset();
@@ -94,11 +90,11 @@ void BT_poll(void) {
 	BT_FLAG_PREV = BT_FLAG_NOW;
 	BT_FLAG_NOW = digitalRead(PIN_BT_READY);
 	if ( BT_FLAG_NOW & !BT_FLAG_PREV) {
-		Serial.println("d:BT ready");
+		DEBUG_UART.println("d:BT ready");
 		SDx.ring_flush();
 	}
 	if (!BT_FLAG_NOW & BT_FLAG_PREV) {
-		Serial.println("d:offline");
+		DEBUG_UART.println("d:offline");
 	}
 	BT_cmdline();
 }
@@ -114,7 +110,7 @@ void UartCallBack(char channel, char *buf, int sz) {
 }
 
 void setup(void) {
-	Serial.begin(115200);
+	DEBUG_UART.begin(DEBUG_UART_BAUD);
 	
 	// setup pin to BT ready signal with pull-up resistor
 	pinMode(PIN_BT_READY,INPUT); digitalWrite(PIN_BT_READY,HIGH);
@@ -149,7 +145,7 @@ void SD_poll(void) {
 				case 's': SD_poll_buf[0] = 'S'; break;
 				case 'x': SD_poll_buf[0] = 'X'; break;
 			} 
-			Serial.println(SD_poll_buf);		// send to BT
+			DEBUG_UART.println(SD_poll_buf);		// send to BT
 		}
 		SD_poll_ptr = 0;
 	}
@@ -168,5 +164,4 @@ void loop(void) {
 	// poll serial channels
 	gps.poll();
 	sonar.poll();
-	extra.poll();
 }
