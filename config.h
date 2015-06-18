@@ -14,7 +14,7 @@
 #define Gb (1024L*Mb)
 // //
 
-#define SD_RING_IMG_SIZE (500*Mb)
+#define SD_RING_IMG_SIZE (( 512*Mb )-((SD_RING_IMG_FIRST_HW_SECTOR+2)*Kb))
 
 #define PIN_BT_READY 7
 
@@ -24,5 +24,15 @@
 extern void reset(void);
 
 #define EOL 0x0A
+
+//#define DEBUG_UART3
+
+#ifdef DEBUG_UART3
+  #define DEBUG_UART Serial3
+#else
+  #define DEBUG_UART Serial
+#endif
+
+#define DEBUG_UART_BAUD 115200
 
 #endif // _H_CONFIG

@@ -18,7 +18,7 @@ UartBuffer::~UartBuffer() {
 
 void UartBuffer::poll(void) {
 	if (uart.available() >= SERIAL_RX_BUFFER_SIZE-2) {
-		Serial.print("d:UART "); Serial.print(uart); Serial.println(" overflow");
+		DEBUG_UART.print("d:UART "); DEBUG_UART.print(uart); DEBUG_UART.println(" overflow");
 	}
 	if (uart.available()) {
 		buf[ptr++] = uart.read();
@@ -32,12 +32,12 @@ void UartBuffer::poll(void) {
 
 bool UartBuffer::toggle(void) {
 	enabled = !enabled;
-	Serial.print("d: channel ");
-	Serial.print(channel);
-	Serial.print(" ");
-	if (enabled)
-		Serial.println("on");
+	DEBUG_UART.print("d: channel ");
+	DEBUG_UART.print(channel);
+	DEBUG_UART.print(" ");
+	if (enabled) 
+	  DEBUG_UART.println("on");
 	else
-		Serial.println("off");
+		DEBUG_UART.println("off");
 	return enabled;
 }

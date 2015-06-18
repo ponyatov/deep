@@ -7,7 +7,7 @@
 
 class UartBuffer {
 	char *buf; uint8_t bufsz; uint8_t ptr;			// buf collecting eoled line
-	HardwareSerial &uart; uint16_t baud;			// serial port config
+	HardwareSerial &uart; int baud;			// serial port config
 	void (*callback)(char channel,char *,int sz);	// will be called on eol/buf
 	char channel;									// channel id
 	bool enabled;									// active flag
