@@ -88,7 +88,12 @@ bool SD_LOW::begin(void) {
       if ( R7.r7 != 0x1AA ) { return error(); } else {
         // acmd41/hcs
         DEBUG_UART.print("ACMD41/HCS "); // HCS bit 30 up
-        while ( acmd(cmd41,0x40000000).b != R1_READY );
+        int cmd41_limit=0x666;
+        while ( (--cmd41_limit>0) & (acmd(cmd41,0x40000000).b != R1_READY) ) delay(1);
+        if (!cmd41_limit) {
+            DEBUG_UART.print("error: CMD41 timeout ");
+            return error();
+        }
         // cmd58
         DEBUG_UART.print("CMD58/CCS ");
         SD_LOW::R3 R3=cmdR3(cmd58);
