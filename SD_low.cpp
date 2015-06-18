@@ -86,8 +86,8 @@ bool SD_LOW::begin(void) {
     SD_LOW::R7 R7 =cmdR7(cmd8,0x1AA);
     if ( R7.r1.b != R1_IDLE ) { return error(); } else {
       if ( R7.r7 != 0x1AA ) { return error(); } else {
-        // acmd41/0x40
-        DEBUG_UART.print("ACMD41/0x40 ");
+        // acmd41/hcs
+        DEBUG_UART.print("ACMD41/HCS "); // HCS bit 30 up
         while ( acmd(cmd41,0x40000000).b != R1_READY );
         // cmd58
         DEBUG_UART.print("CMD58 ");
@@ -113,12 +113,6 @@ bool SD_LOW::begin(void) {
 bool SD_LOW::error(void) { off(); DEBUG_UART.println("error"); return false; }
 
 void SD_LOW::spi_preinit(void) {
-  /* mega 1280/2560 @ variants/mega/pins_arduino.h
-  static const uint8_t SS   = 53;
-  static const uint8_t SCK  = 52;
-  static const uint8_t MOSI = 51;
-  static const uint8_t MISO = 50;
-  */
   pinMode(SPI_CHIP_SELECT,  OUTPUT); // chipselect /inverted/
   pinMode(SCK, OUTPUT); // clock
   pinMode(MOSI,OUTPUT); // output line

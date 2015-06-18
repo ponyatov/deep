@@ -165,6 +165,9 @@ void SD_poll(void) {
 }
 
 void loop(void) {
+  }
+/*  
+void loop(void) {
 	// poll BT state & command line
 	BT_poll();
 	// poll SD ringed history data 
@@ -176,3 +179,5 @@ void loop(void) {
   extra.poll();
  #endif
 }
+*/
+
