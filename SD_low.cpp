@@ -90,11 +90,11 @@ bool SD_LOW::begin(void) {
         DEBUG_UART.print("ACMD41/HCS "); // HCS bit 30 up
         while ( acmd(cmd41,0x40000000).b != R1_READY );
         // cmd58
-        DEBUG_UART.print("CMD58 ");
+        DEBUG_UART.print("CMD58/CCS ");
         SD_LOW::R3 R3=cmdR3(cmd58);
         SD_LOW::OCR OCR; OCR.i=R3.r3;
         if (R3.r1.b != R1_READY) { return error(); } else {
-          if (OCR.b.ccs) { DEBUG_UART.print("SDv2 block address "); return error(); } else {
+          if (OCR.b.ccs) { DEBUG_UART.print("SDHC/SDXC block address "); return error(); } else {
             // cmd16/512
             DEBUG_UART.print("CMD16/512 ");
             if (cmdR1(cmd16,512).b != R1_READY) { return error(); } else {
