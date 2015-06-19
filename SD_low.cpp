@@ -164,8 +164,10 @@ bool SD_LOW::read(uint32_t sector, char *buf) {
 		while (token == TOKEN_X) token = SPI.transfer(0xFF); // wait data token
 		// read data stream
 		if (token == TOKEN_RW_SINGLE) {
-			for (uint16_t i = 0; i < sectorsz; i++)			// data
+			for (uint16_t i = 0; i < sectorsz; i++) {			// data
 				buf[i] = SPI.transfer(0xFF);
+        delay(1);
+			}
 			SPI.transfer(0xFF); SPI.transfer(0xFF);			// skip crc
 			ok = true;
 		} else spi_0x100pad();

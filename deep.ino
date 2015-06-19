@@ -49,7 +49,7 @@ void tick(void) { // every sec
 UartBuffer   gps(UartCallBack,'g',NMEA_MAX_MESSAGE_SZ,Serial1,4800);
 UartBuffer sonar(UartCallBack,'s',NMEA_MAX_MESSAGE_SZ,Serial2,4800);
 #ifndef DEBUG_UART3
-UartBuffer extra(UartCallBack,'x',NMEA_MAX_MESSAGE_SZ,Serial3,4800);
+UartBuffer extra(UartCallBack,'x',NMEA_MAX_MESSAGE_SZ,Serial3,9600);
 #endif
 
 bool BT_FLAG_PREV, BT_FLAG_NOW = true;
@@ -163,10 +163,21 @@ void SD_poll(void) {
 	}
 }
 
+
+//void loop(){}
+
 void loop(void) {
-  }
-/*  
-void loop(void) {
+  char s[SDx.sectorsz];
+  memset(s,0,sizeof(s));
+  SDx.write(0,s);
+  SDx.read(0,s);
+  int i;
+  for (i=0;i<sizeof(s);i++) if (s[i]!=0) break;
+  Serial.print(" i="); Serial.print(i);
+   while(1);
+}
+
+void loopz(void) {
 	// poll BT state & command line
 	BT_poll();
 	// poll SD ringed history data 
@@ -178,5 +189,4 @@ void loop(void) {
   extra.poll();
  #endif
 }
-*/
 
