@@ -124,9 +124,8 @@ void setup(void) {
 	pinMode(PIN_BT_READY,INPUT); digitalWrite(PIN_BT_READY,HIGH);
 
 	// start SD (including ring reload from EEPROM)
-	if (!SDx.begin()) halt();
-	else 
-		SDx.ring_reset();
+  while (!SDx.begin()) DEBUG_UART.println("d: SD init retry");
+	SDx.ring_reset();
 //		SDx.ring_coldstart();
 
 	// start SD ring backuping timer
