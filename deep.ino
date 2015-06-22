@@ -126,7 +126,7 @@ void setup(void) {
 	// start SD (including ring reload from EEPROM)
   while (!SDx.begin()) DEBUG_UART.println("d: SD init retry");
 	SDx.ring_reset();
-//		SDx.ring_coldstart();
+  //SDx.ring_coldstart();
 
 	// start SD ring backuping timer
 	Timer1.initialize(1000000L); // default 1 sec
@@ -164,20 +164,7 @@ void SD_poll(void) {
 }
 
 
-//void loop(){}
-
 void loop(void) {
-  char s[SDx.sectorsz];
-  memset(s,0,sizeof(s));
-  SDx.write(0,s);
-  SDx.read(0,s);
-  int i;
-  for (i=0;i<sizeof(s);i++) if (s[i]!=0) break;
-  Serial.print(" i="); Serial.print(i);
-   while(1);
-}
-
-void loopz(void) {
 	// poll BT state & command line
 	BT_poll();
 	// poll SD ringed history data 

@@ -132,8 +132,8 @@ void SD_LOW::spi_postinit(void) {
   SPI.setBitOrder(MSBFIRST);
 }
 
-void SD_LOW::on (void)  { digitalWrite(SPI_CHIP_SELECT, LOW); /* SS# */ }
-void SD_LOW::off(void)  { digitalWrite(SPI_CHIP_SELECT,HIGH); /* SS# */ }
+void SD_LOW::on (void)  { digitalWrite(SPI_CHIP_SELECT, LOW); /* SS# */ noInterrupts(); }
+void SD_LOW::off(void)  { digitalWrite(SPI_CHIP_SELECT,HIGH); /* SS# */ interrupts(); }
 
 bool SD_LOW::write(uint32_t sector, char *buf) {
 	bool ok = false;
@@ -166,7 +166,7 @@ bool SD_LOW::read(uint32_t sector, char *buf) {
 		if (token == TOKEN_RW_SINGLE) {
 			for (uint16_t i = 0; i < sectorsz; i++) {			// data
 				buf[i] = SPI.transfer(0xFF);
-        delay(1);
+//        delay(1);
 			}
 			SPI.transfer(0xFF); SPI.transfer(0xFF);			// skip crc
 			ok = true;
