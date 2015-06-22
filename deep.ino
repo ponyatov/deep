@@ -49,7 +49,7 @@ void tick(void) { // every sec
 UartBuffer   gps(UartCallBack,'g',NMEA_MAX_MESSAGE_SZ,Serial1,4800);
 UartBuffer sonar(UartCallBack,'s',NMEA_MAX_MESSAGE_SZ,Serial2,4800);
 #ifndef DEBUG_UART3
-UartBuffer extra(UartCallBack,'x',NMEA_MAX_MESSAGE_SZ,Serial3,4800);
+UartBuffer extra(UartCallBack,'x',NMEA_MAX_MESSAGE_SZ,Serial3,9600);
 #endif
 
 bool BT_FLAG_PREV, BT_FLAG_NOW = true;
@@ -124,10 +124,9 @@ void setup(void) {
 	pinMode(PIN_BT_READY,INPUT); digitalWrite(PIN_BT_READY,HIGH);
 
 	// start SD (including ring reload from EEPROM)
-	if (!SDx.begin()) halt();
-	else 
-		SDx.ring_reset();
-//		SDx.ring_coldstart();
+  while (!SDx.begin()) DEBUG_UART.println("d: SD init retry");
+	SDx.ring_reset();
+  //SDx.ring_coldstart();
 
 	// start SD ring backuping timer
 	Timer1.initialize(1000000L); // default 1 sec
@@ -164,6 +163,7 @@ void SD_poll(void) {
 	}
 }
 
+
 void loop(void) {
 	// poll BT state & command line
 	BT_poll();
@@ -176,3 +176,4 @@ void loop(void) {
   extra.poll();
  #endif
 }
+

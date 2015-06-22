@@ -14,3 +14,4 @@ void ee_setuint32(EEPTR addr, uint32_t value) {
 	eeprom_write_byte(addr + 1,(value >>  8)&0xFF);
 	eeprom_write_byte(addr + 0,(value >>  0)&0xFF);
 }
+

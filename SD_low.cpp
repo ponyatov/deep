@@ -86,15 +86,20 @@ bool SD_LOW::begin(void) {
     SD_LOW::R7 R7 =cmdR7(cmd8,0x1AA);
     if ( R7.r1.b != R1_IDLE ) { return error(); } else {
       if ( R7.r7 != 0x1AA ) { return error(); } else {
-        // acmd41/0x40
-        DEBUG_UART.print("ACMD41/0x40 ");
-        while ( acmd(cmd41,0x40000000).b != R1_READY );
+        // acmd41/hcs
+        DEBUG_UART.print("ACMD41/HCS "); // HCS bit 30 up
+        int cmd41_limit=0x666;
+        while ( (--cmd41_limit>0) & (acmd(cmd41,0x40000000).b != R1_READY) ) delay(1);
+        if (!cmd41_limit) {
+            DEBUG_UART.print("error: CMD41 timeout ");
+            return error();
+        }
         // cmd58
-        DEBUG_UART.print("CMD58 ");
+        DEBUG_UART.print("CMD58/CCS ");
         SD_LOW::R3 R3=cmdR3(cmd58);
         SD_LOW::OCR OCR; OCR.i=R3.r3;
         if (R3.r1.b != R1_READY) { return error(); } else {
-          if (OCR.b.ccs) { DEBUG_UART.print("SDv2 block address "); return error(); } else {
+          if (OCR.b.ccs) { DEBUG_UART.print("SDHC/SDXC block address "); return error(); } else {
             // cmd16/512
             DEBUG_UART.print("CMD16/512 ");
             if (cmdR1(cmd16,512).b != R1_READY) { return error(); } else {
@@ -113,12 +118,6 @@ bool SD_LOW::begin(void) {
 bool SD_LOW::error(void) { off(); DEBUG_UART.println("error"); return false; }
 
 void SD_LOW::spi_preinit(void) {
-  /* mega 1280/2560 @ variants/mega/pins_arduino.h
-  static const uint8_t SS   = 53;
-  static const uint8_t SCK  = 52;
-  static const uint8_t MOSI = 51;
-  static const uint8_t MISO = 50;
-  */
   pinMode(SPI_CHIP_SELECT,  OUTPUT); // chipselect /inverted/
   pinMode(SCK, OUTPUT); // clock
   pinMode(MOSI,OUTPUT); // output line
@@ -133,8 +132,8 @@ void SD_LOW::spi_postinit(void) {
   SPI.setBitOrder(MSBFIRST);
 }
 
-void SD_LOW::on (void)  { digitalWrite(SPI_CHIP_SELECT, LOW); /* SS# */ }
-void SD_LOW::off(void)  { digitalWrite(SPI_CHIP_SELECT,HIGH); /* SS# */ }
+void SD_LOW::on (void)  { digitalWrite(SPI_CHIP_SELECT, LOW); /* SS# */ noInterrupts(); }
+void SD_LOW::off(void)  { digitalWrite(SPI_CHIP_SELECT,HIGH); /* SS# */ interrupts(); }
 
 bool SD_LOW::write(uint32_t sector, char *buf) {
 	bool ok = false;
@@ -165,8 +164,10 @@ bool SD_LOW::read(uint32_t sector, char *buf) {
 		while (token == TOKEN_X) token = SPI.transfer(0xFF); // wait data token
 		// read data stream
 		if (token == TOKEN_RW_SINGLE) {
-			for (uint16_t i = 0; i < sectorsz; i++)			// data
+			for (uint16_t i = 0; i < sectorsz; i++) {			// data
 				buf[i] = SPI.transfer(0xFF);
+//        delay(1);
+			}
 			SPI.transfer(0xFF); SPI.transfer(0xFF);			// skip crc
 			ok = true;
 		} else spi_0x100pad();

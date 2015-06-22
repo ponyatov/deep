@@ -10,3 +10,4 @@ uint32_t ee_getuint32(EEPTR addr);
 void ee_setuint32(EEPTR addr, uint32_t value);
 
 #endif // EEPROM_H_
+

@@ -2,6 +2,14 @@
 // (c) Dmitry Ponyatov <dponyatov@gmail.com>
 // part of https://github.com/ponyatov/deep project
 
+  /* mega 1280/2560 @ variants/mega/pins_arduino.h
+  static const uint8_t SS   = 53;
+  static const uint8_t SCK  = 52;
+  static const uint8_t MOSI = 51;
+  static const uint8_t MISO = 50;
+  */
+
+
 #ifndef _H_SDLOW_
 #define _H_SDLOW_
 
@@ -13,11 +21,7 @@
 //#define SPI_CHIP_SELECT 53	/* MEGA */	
 //#define SPI_CHIP_SELECT  4
 
-//#define Meg1 (1024L*1024)
-//#define Gig1 (Meg1*1024L)
-
 #include "config.h"
-
 
 class SD_LOW {
 
